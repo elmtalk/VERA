@@ -1,0 +1,3192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AVATA – Automatic Veteran and Ancient Tree Assessment</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      color-scheme: light dark;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0f172a 0, #020617 45%, #020617 100%);
+      color: #e5e7eb;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to right, rgba(15,23,42,0.95), rgba(15,23,42,0.85));
+      border-bottom: 1px solid rgba(148,163,184,0.25);
+      padding: 0.5rem 1.1rem;
+    }
+    #headerInner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    #headerLeft {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    #appHeaderLogo {
+      max-height: 40px;
+      max-width: 140px;
+      object-fit: contain;
+      border-radius: 4px;
+      border: 1px solid rgba(148,163,184,0.5);
+      display: none;
+      background: #020617;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+    header small {
+      display: block;
+      font-size: 0.7rem;
+      color: #cbd5f5;
+      opacity: 0.9;
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 1.1rem 1rem 2.5rem;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 2.4fr);
+      gap: 1rem;
+    }
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .card {
+      background: rgba(15,23,42,0.96);
+      border-radius: 1rem;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.6);
+      border: 1px solid rgba(148,163,184,0.3);
+      margin-bottom: 1rem;
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(56,189,248,0.1);
+      color: #38bdf8;
+      border: 1px solid rgba(56,189,248,0.35);
+    }
+    .badge span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #38bdf8;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: #e5e7eb;
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148,163,184,0.7);
+      font-size: 0.85rem;
+      outline: none;
+      background: rgba(15,23,42,0.9);
+      color: #f9fafb;
+      caret-color: #e5e7eb;
+    }
+    input::placeholder,
+    textarea::placeholder {
+      color: #6b7280;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.35);
+      background: #020617;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .help {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-top: 0.12rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.4rem 0.75rem;
+    }
+    .feature-card {
+      border-radius: 0.7rem;
+      padding: 0.4rem 0.6rem;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(55,65,81,0.7);
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+    .feature-card:hover {
+      border-color: rgba(56,189,248,0.7);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.35);
+    }
+    .feature-main {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .feature-card input[type="checkbox"] {
+      accent-color: #38bdf8;
+      width: 0.9rem;
+      height: 0.9rem;
+    }
+    .feature-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+    .feature-meta {
+      font-size: 0.72rem;
+      color: #9ca3af;
+      margin-left: 1.4rem;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: linear-gradient(to right, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 8px 18px rgba(21,128,61,0.6);
+    }
+    .btn-secondary {
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.5);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: #e5e7eb;
+      border: 1px dashed rgba(148,163,184,0.7);
+    }
+    .btn-primary:active,
+    .btn-secondary:active,
+    .btn-ghost:active {
+      transform: translateY(1px);
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+    .pill-info {
+      background: rgba(56,189,248,0.08);
+      color: #38bdf8;
+      border-color: rgba(56,189,248,0.5);
+    }
+    .pill-ok {
+      background: rgba(34,197,94,0.08);
+      color: #4ade80;
+      border-color: rgba(34,197,94,0.5);
+    }
+    .pill-warn {
+      background: rgba(250,204,21,0.08);
+      color: #facc15;
+      border-color: rgba(250,204,21,0.5);
+    }
+    .pill-alert {
+      background: rgba(248,113,113,0.1);
+      color: #fca5a5;
+      border-color: rgba(248,113,113,0.6);
+    }
+    .result-block {
+      padding: 0.7rem 0.85rem;
+      border-radius: 0.9rem;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(148,163,184,0.4);
+      margin-top: 0.5rem;
+    }
+    .result-block h3 {
+      margin: 0 0 0.35rem 0;
+      font-size: 0.92rem;
+      color: #e5e7eb;
+    }
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 0.6rem 1rem;
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+    }
+    .result-label {
+      font-weight: 600;
+      color: #9ca3af;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .footer-note {
+      font-size: 0.7rem;
+      color: #9ca3af;
+      margin-top: 0.6rem;
+    }
+    .statusbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.25rem;
+    }
+    .divider {
+      border-top: 1px dashed rgba(148,163,184,0.4);
+      margin: 0.75rem 0;
+    }
+    .photos-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+    .photo-thumb {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      border: 1px solid rgba(148,163,184,0.6);
+    }
+    #reportText {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0.5rem;
+      min-height: 6rem;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+    }
+
+    /* PDF report preview area (not shown in normal UI) */
+    #pdfReport {
+      position: absolute;
+      left: -99999px;
+      top: 0;
+      width: 794px; /* A4 width at 96dpi approx */
+      background: #ffffff;
+      color: #000000;
+      padding: 24px 32px;
+      box-sizing: border-box;
+      font-size: 12px;
+    }
+    #pdfReport h1 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    #pdfReport h2 {
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    #pdfReport p, #pdfReport li {
+      font-size: 12px;
+    }
+    #pdfReport-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    #pdfReport-logo {
+      max-height: 50px;
+      max-width: 150px;
+      object-fit: contain;
+    }
+    #pdfReport img.photo {
+      width: auto;
+      max-width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      margin: 4px 0;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+    }
+  
+@media print {
+  /* Hide the interactive UI when printing */
+  header,
+  .layout > div:first-child,
+  .card .btn-row,
+  #results,
+  #reportText {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0;
+  }
+
+  main {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #pdfReport {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: auto !important;
+    padding: 15mm 20mm !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+
+/* ===== AVATA banner (Option B classic) ===== */
+.avata-banner{
+  background: linear-gradient(135deg, #0f172a 0%, #022c22 45%, #14532d 100%);
+  color:#f9f5e7;
+  border-bottom:1px solid rgba(148,163,184,0.4);
+  box-shadow:0 4px 18px rgba(15,23,42,0.35);
+}
+.avata-banner-inner{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0.75rem 1.25rem;
+  display:flex;
+  align-items:center;
+  gap:0.85rem;
+}
+.avata-mark{
+  width:46px;height:46px;
+  border-radius:999px;
+  padding:0.35rem;
+  border:1px solid rgba(148,163,184,0.45);
+  background: radial-gradient(circle at 30% 20%, rgba(248,250,252,0.12), transparent 55%);
+  display:flex;align-items:center;justify-content:center;
+}
+.avata-logo{ width:40px;height:40px; display:block; }
+.avata-wording{ display:flex; flex-direction:column; gap:0.15rem; min-width:0; }
+.avata-name{
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight:700;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  font-size:1.35rem;
+  line-height:1.05;
+}
+.avata-sub{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size:0.78rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color: rgba(226,232,240,0.92);
+}
+
+
+/* Multi-stem BS5837 helper */
+.multi-rows { display:flex; flex-direction:column; gap:8px; }
+.stem-row { display:flex; gap:10px; align-items:center; }
+.stem-row input[type="number"] { width: 120px; }
+.stem-row .stem-label { width: 92px; font-weight:600; color:#0f172a; }
+.stem-row .remove-stem { margin-left:auto; }
+.panel { border: 1px solid rgba(15,23,42,0.15); border-radius: 12px; padding: 12px; background: rgba(148,163,184,0.15); }
+
+/* TreMs separation */
+.section-divider{
+  height:1px;
+  background: rgba(15,23,42,0.18);
+  margin: 18px 0 14px;
+}
+.subsection-title{
+  margin: 0 0 6px;
+  font-size: 1.02rem;
+  letter-spacing: 0.02em;
+}
+.subsection-note{
+  margin: 0 0 12px;
+  color: rgba(15,23,42,0.72);
+  font-size: 0.9rem;
+}
+
+/* TreMs grouped (collapsible) */
+.trem-groups{ display:flex; flex-direction:column; gap:12px; }
+.trem-actions{ display:flex; gap:10px; margin: 2px 0 10px; flex-wrap:wrap; }
+.trem-group{ border: 1px solid rgba(15,23,42,0.14); border-radius: 14px; background: rgba(255,255,255,0.75); overflow:hidden; box-shadow: 0 1px 0 rgba(15,23,42,0.04); }
+.trem-group > summary{ cursor:pointer; user-select:none; padding: 12px 14px; font-weight: 800; color:#ffffff; background: #0f172a; display:flex; gap:10px; align-items:baseline; border-bottom: 1px solid rgba(255,255,255,0.18); }
+.trem-group > summary::-webkit-details-marker{ display:none; }
+.trem-group > summary::before{ content:'▸'; display:inline-block; transform: translateY(-1px); opacity:0.75; }
+.trem-group[open] > summary::before{ content:'▾'; }
+.trem-range{ font-weight:600; color: rgba(255,255,255,0.78); font-size:0.9rem; }
+.trem-grid{ padding: 12px 12px 14px; }
+</style>
+  <!-- jsPDF + html2canvas from CDN (requires connectivity when generating PDF) -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b2a4a">
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js?v=v39');
+}
+</script>
+</head>
+
+<body>
+
+  <header class="avata-banner" role="banner" aria-label="AVATA header">
+    <div class="avata-banner-inner">
+      <div class="avata-mark" aria-hidden="true">
+        <svg viewBox="0 0 96 64" class="avata-logo" aria-hidden="true">
+  <defs>
+    <linearGradient id="avataOakGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="55%" stop-color="#14532d"/>
+      <stop offset="100%" stop-color="#4d7c0f"/>
+    </linearGradient>
+    <filter id="avataSoft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="0.6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- canopy silhouette -->
+  <path d="M18 38
+           C10 34,10 24,18 22
+           C18 14,28 10,35 14
+           C40 6,56 6,61 14
+           C70 10,80 14,80 22
+           C88 24,88 34,80 38
+           C82 44,74 50,66 48
+           C60 54,50 56,44 52
+           C38 58,24 54,28 46
+           C22 50,14 44,18 38 Z"
+        fill="url(#avataOakGrad)" opacity="0.92" filter="url(#avataSoft)"/>
+
+  <!-- trunk + veteran buttress -->
+  <path d="M46 60
+           C44 54,44 48,42 42
+           C40 36,34 34,34 28
+           C34 22,40 22,42 26
+           C44 20,52 20,54 26
+           C56 22,62 22,62 28
+           C62 34,56 36,54 42
+           C52 48,52 54,50 60
+           Z"
+        fill="#5b3a20" opacity="0.95" stroke="rgba(249,245,231,0.55)" stroke-width="1.2" />
+
+  <!-- gnarly branches -->
+  <path d="M46 40
+           C44 34,38 30,32 28
+           M50 40
+           C54 34,60 30,66 28
+           M44 34
+           C40 30,36 26,28 24
+           M52 34
+           C56 30,60 26,68 24"
+        fill="none" stroke="rgba(249,245,231,0.75)" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- ground line -->
+  <path d="M8 60 H88" stroke="rgba(249,245,231,0.45)" stroke-width="2" stroke-linecap="round"/>
+</svg>
+      </div>
+      <div class="avata-wording">
+        <div class="avata-name">AVATA</div>
+        <div class="avata-sub">Automatic Veteran and Ancient Tree Assessment</div>
+      </div>
+    </div>
+  </header>
+
+<header>
+  <div id="headerInner">
+    <div id="headerLeft">
+      <img id="appHeaderLogo" alt="Logo" />
+      <div>
+        <h1>Ancient &amp; Veteran Tree Tool</h1>
+        <small>TreMs + RAVEN 2 + ATF girth bands + FCIN12</small>
+      </div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="layout">
+    <div>
+      <!-- Tree inputs -->
+      <section class="card">
+        <h2>
+          Tree basics
+          <span class="badge"><span class="dot"></span> Inputs</span>
+        </h2>
+
+        <div class="row">
+          <div>
+            <label for="speciesSelect">Species (quick pick)</label>
+            <select id="speciesSelect">
+              <option value="">Select species…</option>
+              <option value="quercus_robur">Oak (Quercus robur)</option>
+              <option value="quercus_cerris">Turkey oak (Quercus cerris)</option>
+              <option value="quercus_rubra">Red oak (Quercus rubra)</option>
+              <option value="fraxinus_excelsior">Ash (Fraxinus excelsior)</option>
+              <option value="acer_pseudoplatanus">Sycamore (Acer pseudoplatanus)</option>
+              <option value="juglans_regia">Walnut (Juglans regia)</option>
+              <option value="morus_nigra">Black mulberry (Morus nigra)</option>
+              <option value="aesculus_hippocastanum">Horse chestnut (Aesculus hippocastanum)</option>
+              <option value="platanus_x_hispanica">Plane (Platanus × hispanica)</option>
+              <option value="robinia_pseudoacacia">Robinia (Robinia pseudoacacia)</option>
+              <option value="araucaria_araucana">Monkey puzzle (Araucaria araucana)</option>
+              <option value="pinus_nigra">Black pine (Pinus nigra)</option>
+              <option value="liriodendron_tulipifera">Tulip tree (Liriodendron tulipifera)</option>
+              <option value="cedrus_deodara">Deodar cedar (Cedrus deodara)</option>
+              <option value="cedrus_libani">Cedar of Lebanon (Cedrus libani)</option>
+              <option value="taxus_baccata">Yew (Taxus baccata)</option>
+              <option value="ilex_aquifolium">Holly (Ilex aquifolium)</option>
+              <option value="castanea_sativa">Sweet chestnut (Castanea sativa)</option>
+              <option value="fagus_sylvatica">Beech (Fagus sylvatica)</option>
+              <option value="tilia_sp">Lime (Tilia sp.)</option>
+              <option value="fraxinus_excelsior">Ash (Fraxinus excelsior)</option>
+              <option value="acer_pseudoplatanus">Sycamore (Acer pseudoplatanus)</option>
+              <option value="crack_willow">Crack willow</option>
+              <option value="taxus_baccata">Yew (Taxus baccata)</option>
+              <option value="pinus_sylvestris">Scots pine (Pinus sylvestris)</option>
+              <option value="alnus_glutinosa">Alder (Alnus glutinosa)</option>
+              <option value="acer_campestre">Field maple (Acer campestre)</option>
+              <option value="carpinus_betulus">Hornbeam (Carpinus betulus)</option>
+              <option value="sorbus_aucuparia">Rowan (Sorbus aucuparia)</option>
+              <option value="ilex_aquifolium">Holly (Ilex aquifolium)</option>
+              <option value="salix_caprea">Sallow / goat willow (Salix caprea)</option>
+              <option value="crataegus_monogyna">Hawthorn (Crataegus monogyna)</option>
+              <option value="malus_domestica">Apple (Malus domestica)</option>
+              <option value="sambucus_nigra">Elder (Sambucus nigra)</option>
+              <option value="other">Other / not listed</option>
+            </select>
+            <div class="help">You can override or type any species name below.</div>
+          </div>
+          <div>
+            <label for="speciesCustom">Species (override)</label>
+            <input id="speciesCustom" type="text" placeholder="e.g. veteran field oak" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="dbh">DBH (mm)</label>
+            <input id="dbh" type="number" min="0" step="1" placeholder="e.g. 1200" />
+            <div class="help">Standard diameter at 1.3 m. The tool converts DBH → girth.</div>
+            <div class="subrow" style="margin-top:10px;">
+              <label class="inline">
+                <input type="checkbox" id="multiStemToggle" />
+                Multi‑stem calculation (BS5837 equivalent stem)
+              </label>
+            </div>
+            <div id="multiStemPanel" class="panel" style="display:none; margin-top:10px;">
+              <div class="help" style="margin-bottom:10px;">
+                Enter stem diameters (mm) measured at the same height (typically 1.3 m). Equivalent stem is calculated automatically.
+                For ≤5 stems: √(Σ d²). For ≥6 stems: mean(d) × √n.
+              </div>
+              <div id="multiStemRows" class="multi-rows"></div>
+              <div class="subrow" style="gap:10px; align-items:center;">
+                <button type="button" class="btn small" id="addStemBtn">+ Add stem</button>
+                <button type="button" class="btn small ghost" id="clearStemsBtn">Clear</button>
+                <div style="margin-left:auto; font-weight:700;">
+                  Equivalent DBH: <span id="eqDbhText">—</span> mm
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div>
+            <label for="dbhHeight">Measurement height (m)</label>
+            <input id="dbhHeight" type="number" min="0" step="0.1" value="1.3" />
+            <div class="help">ATF &amp; FCIN12 assume 1.3 m. If not, the comparison is approximate.</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="girth">Girth (m)</label>
+            <input id="girth" type="number" min="0" step="0.01" placeholder="auto from DBH, or enter directly" />
+            <div class="help">If you enter DBH, this is auto-filled using girth ≈ π × DBH.</div>
+          </div>
+          <div>
+            <label for="height">Approx. height (m) <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
+            <input id="height" type="number" min="0" step="0.1" placeholder="e.g. 18" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="fcinContext">FCIN12 growth context (White 1998)</label>
+            <select id="fcinContext">
+              <option value="">Select growth context…</option>
+              <option value="champion">Champion tree potential (ideal site conditions)</option>
+              <option value="good_open">Good site, open grown, sheltered</option>
+              <option value="average_park">Average site, garden, parkland</option>
+              <option value="churchyard">Churchyard</option>
+              <option value="poor_exposed">Poor ground and/or some exposure</option>
+              <option value="woodland_boundary">Woodland boundary pollard, or open woodland</option>
+              <option value="inside_woodland">Inside woodland</option>
+            </select>
+            <div class="help">Select the core development category per White (FCIN12). This replaces the separate “growth conditions” modifier.</div>
+          </div>
+        </div>
+
+        <div class="row" id="fcinProxyRow" style="display:none;">
+          <div>
+            <div class="warning" id="fcinProxyWarning" style="margin-bottom:8px;">
+              This species is not included in the FCIN12 Table 1a dataset used by AVATA. Please select an FCIN12 proxy species with similar growth characteristics.
+            </div>
+            <label for="fcinProxySpecies">FCIN12 proxy species (required)</label>
+            <select id="fcinProxySpecies">
+              <option value="">Select proxy species…</option>
+            </select>
+
+            <details class="dropdown-help" style="margin-top:8px;">
+              <summary>How proxy selection works (FCIN12)</summary>
+              <div class="help" style="margin-top:8px;">
+                FCIN12 (White, 1998) requires a proxy species to be used when the target species is not listed in Table 1a.
+                AVATA will then apply the selected proxy species’ Table 1a values together with the chosen growth context.
+              </div>
+            </details>
+          </div>
+        </div>
+
+<div class="row">
+          <div>
+            <label for="targetZone">Target use</label>
+            <select id="targetZone">
+              <option value="none">None / very low</option>
+              <option value="occasional">Occasional use</option>
+              <option value="regular">Regular use</option>
+              <option value="constant">Constant high use</option>
+            </select>
+            <div class="help">For risk context only – not part of RAVEN score.</div>
+          </div>
+          <div>
+            <label for="notes">Inspector notes <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
+            <textarea id="notes" placeholder="Structural notes, defects, ecology, bat potential, etc."></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="photoInput">Photos (stay on device)</label>
+            <input id="photoInput" type="file" accept="image/*" multiple />
+            <div class="help">Select images from your phone/tablet. They are not uploaded. For best PDF layout, use mainly portrait-orientation photos; landscape shots may be shrunk or appear smaller.</div>
+          </div>
+        </div>
+        <div id="photoList" class="photos-grid"></div>
+      </section>
+    </div>
+
+    <div>
+      <!-- TreMs / RAVEN features -->
+      <section class="card">
+        <h2>
+          RAVEN2 structural features
+          <span class="badge"><span class="dot"></span> Features</span>
+        </h2>
+        <p class="help">
+          Checklist taken from your <em>TreMs_RAVEN_Veteran_Assessment.xlsx</em>. Tick each microhabitat present on the tree. Rarity and feature type feed into the scoring.
+        </p>
+
+        
+        <h3 class="card-subtitle">RAVEN2 primary &amp; secondary veteran features</h3>
+        
+        <div class="features-grid" id="ravenFeatures">
+
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="primary" data-weight="1" data-name="Extensive decay" />
+              <span class="feature-name">Extensive decay</span>
+            </span>
+            <span class="feature-meta">Primary (e.g. exposed decay/heartwood; exposed decay areas typically &gt; 400 cm²)</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="primary" data-weight="1" data-name="Extensive hollowing" />
+              <span class="feature-name">Extensive hollowing</span>
+            </span>
+            <span class="feature-meta">Primary (major cavity / extensive internal voiding)</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="primary" data-weight="1" data-name="Senescence" />
+              <span class="feature-name">Senescence</span>
+            </span>
+            <span class="feature-meta">Primary (clear crown senescence / late-stage vitality decline)</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="primary" data-weight="1" data-name="Retrenchment" />
+              <span class="feature-name">Retrenchment</span>
+            </span>
+            <span class="feature-meta">Primary (adaptive reduction / strong crown retrenchment)</span>
+          </label>
+
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Large deadwood in crown (&gt;150 mm dia)" />
+              <span class="feature-name">Large deadwood in crown (&gt;150 mm dia)</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Major storm damage (breakout wounds / broken spars &gt;300 mm dia)" />
+              <span class="feature-name">Major storm damage (breakout wounds / broken spars &gt;300 mm dia)</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Habitat spaces sheltered from direct rainfall (decay holes / crevices / splits)" />
+              <span class="feature-name">Habitat spaces sheltered from direct rainfall</span>
+            </span>
+            <span class="feature-meta">Secondary (decay holes / crevices / branch splits)</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Aerial rooting" />
+              <span class="feature-name">Aerial rooting</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Sap runs / slime flux" />
+              <span class="feature-name">Sap runs / slime flux</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Water pools" />
+              <span class="feature-name">Water pools</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Bark loss (typically &gt; 400 cm², incl. lightning strike)" />
+              <span class="feature-name">Bark loss (typically &gt; 400 cm², incl. lightning strike)</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Fungi (notable / protected / old-growth associated)" />
+              <span class="feature-name">Fungi (notable / protected / old-growth associated)</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+          <label class="feature-card">
+            <span class="feature-main">
+              <input type="checkbox" class="raven-feature" data-type="secondary" data-weight="1" data-name="Other epiphytic plants (rare or significant quantity)" />
+              <span class="feature-name">Other epiphytic plants (rare or significant quantity)</span>
+            </span>
+            <span class="feature-meta">Secondary</span>
+          </label>
+
+        </div>
+
+<div class="section-divider"></div>
+<h3 class="subsection-title">Tree-related microhabitats (TreMs)</h3>
+<div class="subsection-note">Counts (0–10) with rarity weighting. TreMs are grouped for quicker field use and reported as an ecological signal alongside RAVEN2.</div>
+<div id="microhabitats" class="trem-groups">
+  <div class="trem-actions">
+    <button type="button" class="btn small ghost" id="btnTremsExpand">Expand all</button>
+    <button type="button" class="btn small ghost" id="btnTremsCollapse">Collapse all</button>
+  </div>
+  <details class="trem-group" open>
+    <summary>Cavities & hollows <span class="trem-range">(1–15)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="0" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">1. Small woodpecker breeding cavity</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="1" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">2. Medium-sized woodpecker breeding cavity</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="2" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">3. Large woodpecker breeding cavity</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="3" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">4. Woodpecker flute</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="4" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">5. Trunk-base rot-hole (ground contact)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="5" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">6. Trunk rot-hole (no ground contact)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="6" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">7. Semi-open trunk rot-hole</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="7" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">8. Chimney trunk-base rot-hole (ground contact)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="8" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">9. Chimney trunk rot-hole (no ground contact)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="9" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">10. Hollow branch</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="10" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">11. Insect galleries and bore holes</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="11" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">12. Dendrotelm</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="12" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">13. Large woodpecker foraging excavation</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="13" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">14. Bark-lined trunk concavity</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="14" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">15. Buttress-root concavity</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Exposed wood, bark structures & damage <span class="trem-range">(16–25)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="15" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">16. Bark loss</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="16" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">17. Fire scar</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="17" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">18. Bark shelter</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="18" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">19. Bark pocket</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="19" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">20. Stem breakage</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="20" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">21. Limb breakage</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="21" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">22. Crack</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="22" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">23. Lightning scar</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="23" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">24. Fork split at the intersection</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="24" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">25. Trunk gnawed by beavers</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Deadwood & breakage <span class="trem-range">(26–28)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="25" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">26. Dead branches</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="26" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">27. Dead top</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="27" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">28. Remnants of a broken limb</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Deformities & growth forms <span class="trem-range">(29–33)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="28" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">29. Witches&#x27; broom</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="29" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">30. Epicormic shoots</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="30" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">31. Galls</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="31" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">32. Burr (burl)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="32" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">33. Canker</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Fungi & slime moulds <span class="trem-range">(34–39)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="33" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">34. Perennial polypore</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="34" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">35. Annual polypore</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="35" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">36. Pulpy agaric</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="36" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">37. Corticoid fungi (crust fungi)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="37" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">38. Large pyrenomycetoid fungi (stromatic sordariomycetes)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="38" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">39. Myxogastria (myxomycetes / plasmodial slime moulds)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Epiphytes & plants <span class="trem-range">(40–44)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="39" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">40. Bryophytes (mosses and liverworts)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="40" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">41. Foliose and fruticose lichens</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="41" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">42. Ivy and lianas (woody vines)</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="42" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">43. Ferns</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="43" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">44. Mistletoe</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Nests <span class="trem-range">(45–46)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="44" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">45. Vertebrate nest</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="45" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">46. Invertebrate nest</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Microsoils & deposits <span class="trem-range">(47–50)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="46" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">47. Bark microsoil</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="47" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">48. Inter-bark microsoil</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="48" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">49. Crown microsoil</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="49" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">50. Clay or silt deposit</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+  <details class="trem-group">
+    <summary>Exudates <span class="trem-range">(51–52)</span></summary>
+    <div class="features-grid trem-grid">
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="50" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">51. Sap run</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+<label class="feature-card">
+        <span class="feature-main">
+          <input type="number" class="microhabitat" data-index="51" data-type="TreM" data-raven-feature="TreM (WSL 2024)" data-score="1" data-rarity="1" min="0" max="10" value="0" />
+          <span class="feature-name">52. Heavy resinosis</span>
+        </span>
+        <span class="feature-meta">TreM (WSL 2024) · count 0–10</span>
+      </label>
+    </div>
+  </details>
+</div></div>
+      </section>
+
+      <!-- Assessment & report -->
+      <section class="card">
+        <h2>
+          Classification &amp; report
+          <span class="badge"><span class="dot"></span> Output</span>
+        </h2>
+
+        <div class="btn-row">
+          <button class="btn-primary" id="btnAssess">Run assessment</button>
+          <button class="btn-secondary" id="btnClear">Reset</button>
+          <button class="btn-secondary" id="btnDownloadPng">Download PNG snapshot</button>
+        </div>
+
+        <div id="results" style="margin-top:0.75rem;"></div>
+
+        <div class="divider"></div>
+        <div class="result-label">Report text (paste into your report)</div>
+        <div class="btn-row" style="margin-top:0.35rem;">
+          <button class="btn-secondary" id="btnCopyReport">Copy report text</button>
+        </div>
+        <textarea id="reportText" readonly placeholder="Run an assessment to populate this text."></textarea>
+
+        <p class="footer-note">
+          This tool combines TreMs / RAVEN 2 features, ATF mature/ancient girth bands (via DBH → girth), and a simple FCIN12-style age estimate.
+          ATF size band and the combined category are shown side by side, and any differences are flagged.
+        </p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- Hidden PDF report template -->
+<div id="pdfReport"></div>
+
+<div id="pngSnapshot" style="position:absolute; left:-99999px; top:0;"></div>
+
+<script>
+  // FCIN12 (White, 1998) age estimation inputs
+// White (1998) FCIN12 Table 1a values: core development age (years) and mean ring width (mm)
+  const WHITE_FCIN12_TABLE1A = {
+  "champion": {
+    "quercus_robur": [
+      70,
+      5
+    ],
+    "quercus_cerris": [
+      30,
+      10
+    ],
+    "quercus_rubra": [
+      60,
+      6
+    ],
+    "fagus_sylvatica": [
+      80,
+      6
+    ],
+    "tilia_x_europaea": [
+      100,
+      5
+    ],
+    "platanus_x_hispanica": [
+      100,
+      6
+    ],
+    "araucaria_araucana": [
+      60,
+      5
+    ],
+    "pinus_nigra": [
+      60,
+      6
+    ],
+    "liriodendron_tulipifera": [
+      70,
+      7
+    ],
+    "cedrus_deodara": [
+      40,
+      8
+    ]
+  },
+  "good_open": {
+    "quercus_robur": [
+      80,
+      4
+    ],
+    "quercus_cerris": [
+      40,
+      6
+    ],
+    "quercus_rubra": [
+      70,
+      5
+    ],
+    "fagus_sylvatica": [
+      70,
+      5
+    ],
+    "castanea_sativa": [
+      70,
+      5
+    ],
+    "juglans_regia": [
+      55,
+      4
+    ],
+    "morus_nigra": [
+      40,
+      3
+    ],
+    "fraxinus_excelsior": [
+      50,
+      5
+    ],
+    "tilia_x_europaea": [
+      80,
+      5
+    ],
+    "aesculus_hippocastanum": [
+      50,
+      5
+    ],
+    "platanus_x_hispanica": [
+      60,
+      6
+    ],
+    "robinia_pseudoacacia": [
+      70,
+      5
+    ],
+    "araucaria_araucana": [
+      45,
+      5
+    ],
+    "pinus_nigra": [
+      70,
+      5
+    ],
+    "liriodendron_tulipifera": [
+      50,
+      6
+    ],
+    "cedrus_deodara": [
+      50,
+      7
+    ],
+    "cedrus_libani": [
+      60,
+      6
+    ],
+    "acer_pseudoplatanus": [
+      80,
+      6
+    ]
+  },
+  "average_park": {
+    "quercus_robur": [
+      100,
+      3.5
+    ],
+    "quercus_cerris": [
+      50,
+      5
+    ],
+    "quercus_rubra": [
+      80,
+      4
+    ],
+    "fagus_sylvatica": [
+      70,
+      4
+    ],
+    "castanea_sativa": [
+      60,
+      5
+    ],
+    "juglans_regia": [
+      50,
+      4
+    ],
+    "morus_nigra": [
+      30,
+      3
+    ],
+    "fraxinus_excelsior": [
+      70,
+      4
+    ],
+    "tilia_x_europaea": [
+      70,
+      5
+    ],
+    "aesculus_hippocastanum": [
+      40,
+      5
+    ],
+    "platanus_x_hispanica": [
+      70,
+      5
+    ],
+    "taxus_baccata": [
+      60,
+      4
+    ],
+    "robinia_pseudoacacia": [
+      80,
+      4
+    ],
+    "araucaria_araucana": [
+      60,
+      4
+    ],
+    "pinus_nigra": [
+      70,
+      5
+    ],
+    "cedrus_deodara": [
+      50,
+      6
+    ],
+    "acer_pseudoplatanus": [
+      60,
+      6
+    ]
+  },
+  "churchyard": {
+    "quercus_cerris": [
+      40,
+      6
+    ],
+    "fagus_sylvatica": [
+      60,
+      4
+    ],
+    "juglans_regia": [
+      50,
+      4
+    ],
+    "tilia_x_europaea": [
+      80,
+      5
+    ],
+    "aesculus_hippocastanum": [
+      50,
+      5
+    ],
+    "platanus_x_hispanica": [
+      70,
+      5
+    ],
+    "taxus_baccata": [
+      55,
+      3
+    ],
+    "robinia_pseudoacacia": [
+      80,
+      4
+    ],
+    "acer_pseudoplatanus": [
+      60,
+      6
+    ]
+  },
+  "poor_exposed": {
+    "quercus_robur": [
+      120,
+      3
+    ],
+    "fagus_sylvatica": [
+      60,
+      4
+    ],
+    "castanea_sativa": [
+      40,
+      5
+    ],
+    "juglans_regia": [
+      50,
+      3
+    ],
+    "taxus_baccata": [
+      40,
+      3
+    ],
+    "robinia_pseudoacacia": [
+      50,
+      3
+    ],
+    "araucaria_araucana": [
+      60,
+      3
+    ],
+    "pinus_nigra": [
+      60,
+      5
+    ],
+    "liriodendron_tulipifera": [
+      50,
+      4
+    ],
+    "cedrus_libani": [
+      80,
+      4
+    ],
+    "ilex_aquifolium": [
+      80,
+      3
+    ],
+    "acer_pseudoplatanus": [
+      60,
+      5
+    ]
+  },
+  "woodland_boundary": {
+    "quercus_robur": [
+      100,
+      3.5
+    ],
+    "fraxinus_excelsior": [
+      20,
+      5
+    ]
+  },
+  "inside_woodland": {
+    "quercus_robur": [
+      70,
+      2.5
+    ],
+    "fagus_sylvatica": [
+      120,
+      3
+    ],
+    "castanea_sativa": [
+      100,
+      3
+    ],
+    "fraxinus_excelsior": [
+      100,
+      3
+    ],
+    "taxus_baccata": [
+      30,
+      3
+    ],
+    "ilex_aquifolium": [
+      60,
+      4
+    ]
+  }
+};
+  
+  // FCIN12 context multipliers derived from FCIN12 Table 1a ring-width patterns
+  // (median ratio of ring width vs 'champion' for calibration species).
+  const FCIN12_INTERPOLATE_MISSING_CONTEXTS = true;
+  const FCIN12_CALIBRATION_SPECIES = ["quercus_robur","fagus_sylvatica","fraxinus_excelsior","acer_pseudoplatanus"];
+
+  function median(values) {
+    const v = values.slice().sort((a,b)=>a-b);
+    if (!v.length) return null;
+    const mid = Math.floor(v.length/2);
+    return v.length % 2 ? v[mid] : (v[mid-1] + v[mid]) / 2;
+  }
+
+  function computeFCIN12ContextMultipliers() {
+    const multipliers = {};
+    multipliers["champion"] = 1.0;
+    const contexts = Object.keys(WHITE_FCIN12_TABLE1A || {});
+    contexts.forEach(ctx => {
+      if (ctx === "champion") return;
+      const ratios = [];
+      FCIN12_CALIBRATION_SPECIES.forEach(sp => {
+        const champ = (WHITE_FCIN12_TABLE1A["champion"] || {})[sp];
+        const cur = (WHITE_FCIN12_TABLE1A[ctx] || {})[sp];
+        if (champ && cur && champ[1] && cur[1]) {
+          ratios.push(cur[1] / champ[1]);
+        }
+      });
+      const med = median(ratios);
+      if (med) multipliers[ctx] = med;
+    });
+    return multipliers;
+  }
+
+  const FCIN12_CONTEXT_MULT = computeFCIN12ContextMultipliers();
+
+const WHITE_FCIN12_SPECIES_KEYS = new Set(Object.values(WHITE_FCIN12_TABLE1A).flatMap(ctx => Object.keys(ctx)));
+  const FCIN12_CONTEXT_LABELS = {
+  "champion": "Champion tree potential (ideal site conditions)",
+  "good_open": "Good site, open grown, sheltered",
+  "average_park": "Average site, garden, parkland",
+  "churchyard": "Churchyard",
+  "poor_exposed": "Poor ground and/or some exposure",
+  "woodland_boundary": "Woodland boundary pollard, or open woodland",
+  "inside_woodland": "Inside woodland"
+};
+
+
+  const SPECIES_CONFIG = {
+    quercus_robur: { label: "Oak (Quercus robur)" },
+    castanea_sativa: { label: "Sweet chestnut (Castanea sativa)" },
+    fagus_sylvatica: { label: "Beech (Fagus sylvatica)" },
+    tilia_sp: { label: "Lime (Tilia sp.)" },
+    fraxinus_excelsior: { label: "Ash (Fraxinus excelsior)" },
+    acer_pseudoplatanus: { label: "Sycamore (Acer pseudoplatanus)" },
+    crack_willow: { label: "Crack willow" },
+    taxus_baccata: { label: "Yew (Taxus baccata)" },
+    pinus_sylvestris: { label: "Scots pine (Pinus sylvestris)" },
+    alnus_glutinosa: { label: "Alder (Alnus glutinosa)" },
+    acer_campestre: { label: "Field maple (Acer campestre)" },
+    carpinus_betulus: { label: "Hornbeam (Carpinus betulus)" },
+    sorbus_aucuparia: { label: "Rowan (Sorbus aucuparia)" },
+    ilex_aquifolium: { label: "Holly (Ilex aquifolium)" },
+    salix_caprea: { label: "Sallow / goat willow (Salix caprea)" },
+    crataegus_monogyna: { label: "Hawthorn (Crataegus monogyna)" },
+    malus_domestica: { label: "Apple (Malus domestica)" },
+    sambucus_nigra: { label: "Elder (Sambucus nigra)" },
+
+    quercus_cerris: { label: "Turkey oak (Quercus cerris)" },
+    quercus_rubra: { label: "Red oak (Quercus rubra)" },
+    juglans_regia: { label: "Walnut (Juglans regia)" },
+    morus_nigra: { label: "Black mulberry (Morus nigra)" },
+    tilia_x_europaea: { label: "Common lime (Tilia × europaea)" },
+    aesculus_hippocastanum: { label: "Horse chestnut (Aesculus hippocastanum)" },
+    platanus_x_hispanica: { label: "Plane (Platanus × hispanica)" },
+    robinia_pseudoacacia: { label: "Robinia (Robinia pseudoacacia)" },
+    araucaria_araucana: { label: "Monkey puzzle (Araucaria araucana)" },
+    pinus_nigra: { label: "Black pine (Pinus nigra)" },
+    liriodendron_tulipifera: { label: "Tulip tree (Liriodendron tulipifera)" },
+    cedrus_deodara: { label: "Deodar cedar (Cedrus deodara)" },
+    cedrus_libani: { label: "Cedar of Lebanon (Cedrus libani)" },
+    default: { label: "Unspecified species" }
+  };
+
+  const ATF_GIRTH_THRESHOLDS = {
+    castanea_sativa: { mature: 2.0,  ancient: 6.0 },
+    quercus_robur:   { mature: 2.25, ancient: 5.75 },
+    tilia_sp:        { mature: 2.25, ancient: 5.75 },
+    acer_pseudoplatanus: { mature: 2.5,  ancient: 5.75 },
+    fagus_sylvatica: { mature: 1.75, ancient: 4.5 },
+    crack_willow:    { mature: 1.75, ancient: 4.5 },
+    fraxinus_excelsior: { mature: 1.75, ancient: 4.0 },
+    taxus_baccata:   { mature: 1.5,  ancient: 4.0 },
+    pinus_sylvestris:{ mature: 1.0,  ancient: 3.0 },
+    alnus_glutinosa: { mature: 1.0,  ancient: 2.5 },
+    acer_campestre:  { mature: 1.0,  ancient: 2.5 },
+    carpinus_betulus:{ mature: 1.0,  ancient: 2.5 },
+    sorbus_aucuparia:{ mature: 1.0,  ancient: 2.25 },
+    ilex_aquifolium: { mature: 1.0,  ancient: 2.0 },
+    salix_caprea:    { mature: 1.0,  ancient: 2.0 },
+    crataegus_monogyna: { mature: 0.75, ancient: 1.5 },
+    malus_domestica: { mature: 0.5,  ancient: 1.25 },
+    sambucus_nigra:  { mature: 0.25, ancient: 1.0 },
+    default:         { mature: 1.0,  ancient: 3.0 }
+  };
+
+  const RAVEN_THRESHOLDS = {
+    minFeaturesForVeteran: 2,
+    minFeaturesForAncient: 3,
+    minPrimaryScoreForVeteran: 3,
+    minTotalScoreForVeteran: 6,
+    minRareCountForVeteran: 1
+  };
+
+  function estimateAgeFromFCIN12(dbhCm, speciesKey, contextKey, proxySpeciesKey) {
+    // Implements White (1998) FCIN12 sequence using Table 1a (core age / ring width) and derived mature-state CAI.
+    // Returns a structured result, or null if insufficient inputs.
+    if (!dbhCm || dbhCm <= 0) return null;
+    if (!contextKey) return null;
+
+    const chosenSpeciesKey = WHITE_FCIN12_SPECIES_KEYS.has(speciesKey) ? speciesKey : (proxySpeciesKey || null);
+    if (!chosenSpeciesKey) return null;
+
+    let entry = (WHITE_FCIN12_TABLE1A[contextKey] || {})[chosenSpeciesKey];
+    let fcinNote = null;
+
+    // If this FCIN12 species lacks the selected context entry, optionally interpolate within FCIN12 patterns
+    // (anchored to an available context entry for that species; ring width scaled using FCIN12-derived context multipliers).
+    if (!entry && FCIN12_INTERPOLATE_MISSING_CONTEXTS && WHITE_FCIN12_SPECIES_KEYS.has(chosenSpeciesKey)) {
+      const availableContexts = Object.keys(WHITE_FCIN12_TABLE1A || {}).filter(k => (WHITE_FCIN12_TABLE1A[k] || {})[chosenSpeciesKey]);
+      if (availableContexts.length) {
+        const anchorContext = availableContexts.includes("champion") ? "champion" : availableContexts[0];
+        const anchorEntry = (WHITE_FCIN12_TABLE1A[anchorContext] || {})[chosenSpeciesKey];
+
+        const targetMult = FCIN12_CONTEXT_MULT[contextKey];
+        const anchorMult = FCIN12_CONTEXT_MULT[anchorContext] || 1.0;
+
+        if (anchorEntry && targetMult) {
+          const anchorAge = anchorEntry[0];
+          const anchorRing = anchorEntry[1];
+          const derivedRing = anchorRing * (targetMult / anchorMult);
+          entry = [anchorAge, derivedRing];
+          fcinNote = `FCIN12 context derived (not tabulated for this species/context in White 1998): anchored to '${anchorContext}' and scaled by FCIN12 context multiplier (${targetMult.toFixed(2)} / ${anchorMult.toFixed(2)}).`;
+        }
+      }
+    }
+
+    if (!entry) return null;
+
+    const coreAge = entry[0];          // years
+    const ringMm = entry[1];           // mm
+    const ringCm = ringMm / 10.0;
+
+    // Core radius at end of core-development phase:
+    const coreRadiusCm = coreAge * ringCm;
+
+    // Basal areas (cm^2)
+    const PI = Math.PI;
+    const coreBA = PI * coreRadiusCm * coreRadiusCm;
+
+    // Mature-state CAI of outer core ring (White 16.2d): subtract one ring width from core radius and difference BA.
+    const innerRadiusCm = Math.max(0, coreRadiusCm - ringCm);
+    const innerBA = PI * innerRadiusCm * innerRadiusCm;
+    const matureStateCAI = coreBA - innerBA; // cm^2 per year
+
+    // Whole stem basal area from measured DBH
+    const stemRadiusCm = dbhCm / 2.0;
+    const totalBA = PI * stemRadiusCm * stemRadiusCm;
+
+    // --- Phase handling ---
+    // If the measured radius is smaller than the core-development radius from Table 1a,
+    // FCIN12 treats the tree as still in core development. Use proportional scaling to the core age.
+    if (stemRadiusCm <= coreRadiusCm) {
+      const frac = coreRadiusCm > 0 ? (stemRadiusCm / coreRadiusCm) : 0;
+      const formativeAge = coreAge * frac;
+      return {
+        totalAge: Math.round(formativeAge),
+        totalAgeRaw: formativeAge,
+        basisSpeciesKey: chosenSpeciesKey,
+        usedProxy: chosenSpeciesKey !== speciesKey,
+        coreAge,
+        ringMm,
+        coreRadiusCm,
+        coreBA,
+        matureStateCAI,
+        stemRadiusCm,
+        totalBA,
+        outerAge: 0,
+        phase: "core development",
+        fcinNote
+      };
+    }
+
+    const outerBA = Math.max(0, totalBA - coreBA);
+    const outerAge = matureStateCAI > 0 ? (outerBA / matureStateCAI) : 0;
+
+    const totalAge = coreAge + outerAge;
+
+    return {
+      totalAge: Math.round(totalAge),
+      totalAgeRaw: totalAge,
+      basisSpeciesKey: chosenSpeciesKey,
+      usedProxy: chosenSpeciesKey !== speciesKey,
+      coreAge,
+      ringMm,
+      coreRadiusCm,
+      coreBA,
+      matureStateCAI,
+      stemRadiusCm,
+      totalBA,
+      outerAge,
+      phase: "mature state",
+      fcinNote
+    };
+  }
+
+  
+  function getSpeciesLabel(speciesKey) {
+    return (SPECIES_CONFIG[speciesKey] && SPECIES_CONFIG[speciesKey].label) ? SPECIES_CONFIG[speciesKey].label : String(speciesKey || "");
+  }
+
+function evaluateFCIN12(estAgeObj, speciesKey, girthMeters, growthCond) {
+    const age = (estAgeObj && estAgeObj.totalAge) ? estAgeObj.totalAge : null;
+    const reasons = [];
+    if (!age || isNaN(age)) {
+      reasons.push("FCIN12-style age not estimated; insufficient data.");
+      return { ageBand: "unknown", ageLow: null, ageHigh: null, reasons };
+    }
+
+    let ageBand = "unknown";
+    if (age < 80) {
+      ageBand = "young / early mature";
+    } else if (age < 150) {
+      ageBand = "mid-mature";
+    } else if (age < 250) {
+      ageBand = "late-mature / veteran-aged";
+    } else {
+      ageBand = "ancient-aged";
+    }
+
+    
+
+    // Explain the Table 1a parameters used (core age and first mature-state ring width)
+    if (estAgeObj && estAgeObj.coreAge && estAgeObj.ringMm) {
+      const basisNote = estAgeObj.usedProxy ? `Proxy used for FCIN12: ${getSpeciesLabel(estAgeObj.basisSpeciesKey)} (selected species: ${getSpeciesLabel(speciesKey)}).` : `FCIN12 Table 1a species: ${getSpeciesLabel(speciesKey)}.`;
+      reasons.push(`${basisNote} Core development entry: ${estAgeObj.coreAge} years / ${estAgeObj.ringMm} mm. Phase applied: ${estAgeObj.phase}.`);
+    }
+// baseline uncertainty band: ±20%% around central
+    let lowFactor = 0.8;
+    let highFactor = 1.2;
+
+    // Confidence band based on FCIN12 context sensitivity (spread across available growth contexts)
+    try {
+      const dbhCmForConf = (girthMeters && girthMeters > 0) ? ((girthMeters * 100.0) / Math.PI) : null;
+      if (dbhCmForConf) {
+        const ctxs = Object.keys(WHITE_FCIN12_TABLE1A || {});
+        const ages = [];
+        ctxs.forEach(ctx => {
+          const tmp = estimateAgeFromFCIN12(dbhCmForConf, (estAgeObj && estAgeObj.basisSpeciesKey) ? estAgeObj.basisSpeciesKey : speciesKey, ctx, null);
+          if (tmp && tmp.totalAgeRaw && !isNaN(tmp.totalAgeRaw)) ages.push(tmp.totalAgeRaw);
+        });
+        if (ages.length >= 3) {
+          const minA = Math.round(Math.min(...ages));
+          const maxA = Math.round(Math.max(...ages));
+          const spread = maxA - minA;
+          const rel = age > 0 ? (spread / age) : 0;
+          let conf = "moderate";
+          if (rel < 0.25) conf = "high";
+          else if (rel > 0.6) conf = "low";
+
+          reasons.push(`Context sensitivity check (FCIN12): ~${minA}–${maxA} years across growth contexts (confidence: ${conf}).`);
+
+          if (conf === "high") { lowFactor = 0.9; highFactor = 1.1; }
+          if (conf === "low")  { lowFactor = 0.7; highFactor = 1.3; }
+        }
+      }
+    } catch(e) { /* ignore */ }
+
+
+
+    const flags = Array.from(document.querySelectorAll(".fcin-flag")).filter(f => f.checked).map(f => f.dataset.effect || "");
+
+    if (flags.includes("open-grown")) {
+      reasons.push("FCIN12 context: open-grown / parkland form noted; girth may have accrued relatively quickly.");
+      lowFactor = 0.7;
+      highFactor = 1.15;
+    }
+    if (flags.includes("woodland")) {
+      reasons.push("FCIN12 context: woodland-grown / historic competition; girth may under-represent age slightly.");
+      lowFactor = Math.min(lowFactor, 0.8);
+      highFactor = Math.max(highFactor, 1.25);
+    }
+    if (flags.includes("long-suppressed")) {
+      reasons.push("FCIN12 context: long-term suppression indicated; tree may be materially older than girth alone suggests.");
+      lowFactor = Math.min(lowFactor, 0.75);
+      highFactor = Math.max(highFactor, 1.35);
+    }
+    if (flags.includes("suppressed-then-released")) {
+      reasons.push("FCIN12 context: suppressed then released; girth may exaggerate age because of a faster release phase.");
+      lowFactor = Math.min(lowFactor, 0.7);
+      highFactor = Math.max(highFactor, 1.3);
+    }
+    if (flags.includes("pollard")) {
+      reasons.push("FCIN12 context: historic pollard / lapsed pollard; stem size alone may under-represent the age of the framework tree.");
+      lowFactor = Math.min(lowFactor, 0.8);
+      highFactor = Math.max(highFactor, 1.35);
+    }
+    if (flags.includes("poor-rooting")) {
+      reasons.push("FCIN12 context: rooting volume restrictions; reduced girth increment expected, so age may be toward the upper end of the range.");
+      highFactor = Math.max(highFactor, 1.3);
+    }
+    if (flags.includes("exposed-coastal")) {
+      reasons.push("FCIN12 context: exposed / upland / coastal site; growth likely to have been slower at times, adding uncertainty to age estimation.");
+      highFactor = Math.max(highFactor, 1.3);
+    }
+    if (flags.includes("fertile-sheltered")) {
+      reasons.push("FCIN12 context: fertile / sheltered site; faster girth increment expected, so true age may be toward the lower end of the range.");
+      lowFactor = Math.min(lowFactor, 0.7);
+    }
+
+    const ageLow = Math.max(10, Math.round(age * lowFactor));
+    const ageHigh = Math.round(age * highFactor);
+
+    reasons.push(`FCIN12-style central age estimate ~${age} years (from girth, species and growth conditions).`);
+    reasons.push(`FCIN12-style agedness band: ${ageBand}.`);
+    reasons.push(`Indicative FCIN12 age range ~${ageLow}–${ageHigh} years (approximate, diagnostic use only).`);
+
+    return { ageBand, ageLow, ageHigh, reasons };
+  }
+
+
+
+
+  function getAtfBand(speciesKey, girthMeters) {
+    if (!girthMeters || girthMeters <= 0) return "unknown";
+    const thr = ATF_GIRTH_THRESHOLDS[speciesKey];
+    if (!thr) return "na";
+    if (girthMeters >= thr.ancient) return "ancient";
+    if (girthMeters >= thr.mature) return "mature";
+    return "young";
+  }
+
+  function summariseFeatures() {
+    const boxes = document.querySelectorAll(".microhabitat");
+    let totalCount = 0;
+    let primaryCount = 0;
+    let secondaryCount = 0;
+    let primaryScore = 0;
+    let secondaryScore = 0;
+    let rareCount = 0;
+    let rarityBuckets = { 1: 0, 2: 0, 3: 0 };
+    const featureNames = new Set();
+
+    boxes.forEach(input => {
+      const count = parseInt(input.value || "0", 10);
+      if (!count || count <= 0) return;
+
+      totalCount += count;
+      const type = (input.dataset.type || "").toLowerCase();
+      const score = parseInt(input.dataset.score || "0", 10);
+      const rarity = parseInt(input.dataset.rarity || "0", 10);
+      const name = input.dataset.ravenFeature || "";
+      if (name) featureNames.add(name);
+      if (type === "primary") {
+        primaryCount += count;
+        primaryScore += score * count;
+      } else if (type === "secondary") {
+        secondaryCount += count;
+        secondaryScore += score * count;
+      } else {
+        // TreMs are not classified as primary/secondary in WSL 2024 dataset
+      }
+      if (rarity && rarityBuckets.hasOwnProperty(rarity)) {
+        rarityBuckets[rarity] += count;
+        if (rarity === 3) rareCount += count;
+      }
+    });
+
+    return {
+      totalCount,
+      primaryCount,
+      secondaryCount,
+      primaryScore,
+      secondaryScore,
+      rareCount,
+      rarityBuckets,
+      uniqueFeatureNames: Array.from(featureNames)
+    };
+  }
+  
+  const TREMS_FREQUENCY = {
+  1: "Rare",
+  2: "Rare",
+  3: "Rare",
+  4: "Rare",
+  5: "Common",
+  6: "Common",
+  7: "Rare",
+  8: "Rare",
+  9: "Relatively rare",
+  10: "Rare",
+  11: "Common",
+  12: "Relatively common",
+  13: "Relatively common",
+  14: "Rare",
+  15: "Common",
+  16: "Common",
+  17: "Relatively rare",
+  18: "Relatively common",
+  19: "Common",
+  20: "Relatively common",
+  21: "Common",
+  22: "Common",
+  23: "Rare",
+  24: "Relatively rare",
+  25: "Relatively rare",
+  26: "Common",
+  27: "Relatively rare",
+  28: "Relatively common",
+  29: "Relatively rare",
+  30: "Relatively rare",
+  31: "Relatively common",
+  32: "Relatively common",
+  33: "Relatively rare",
+  34: "Common",
+  35: "Relatively common",
+  36: "Relatively common",
+  37: "Relatively rare",
+  38: "Relatively rare",
+  39: "Relatively rare",
+  40: "Common",
+  41: "Relatively rare",
+  42: "Relatively common",
+  43: "Relatively rare",
+  44: "Rare to common (species dependent)",
+  45: "Relatively common",
+  46: "Relatively rare",
+  47: "Rare",
+  48: "Rare",
+  49: "Relatively rare",
+  50: "Relatively rare",
+  51: "Relatively common",
+  52: "Common"
+};
+
+
+const TREMS_REPLACEMENT_RATE = {
+  1: "Fairly rapid",
+  2: "Fairly rapid",
+  3: "Fairly rapid",
+  4: "Slow",
+  5: "Very slow",
+  6: "Very slow",
+  7: "Very slow",
+  8: "Very slow",
+  9: "Very slow",
+  10: "Slow to rapid",
+  11: "Fairly fast",
+  12: "Slow",
+  13: "Fairly rapid",
+  14: "Slow",
+  15: "Slow",
+  16: "Rapid",
+  17: "Very slow to rapid",
+  18: "Slow",
+  19: "Slow",
+  20: "Rapid",
+  21: "Rapid",
+  22: "Slow",
+  23: "Rare event",
+  24: "Slow",
+  25: "Fairly rapid",
+  26: "Fairly slow",
+  27: "Fairly slow",
+  28: "Fairly rapid",
+  29: "Fairly rapid",
+  30: "Fairly slow",
+  31: "Rapid",
+  32: "Slow",
+  33: "Slow",
+  34: "Slow",
+  35: "Slow",
+  36: "Slow",
+  37: "Rapid",
+  38: "Slow",
+  39: "Fairly rapid",
+  40: "Fairly rapid",
+  41: "Slow",
+  42: "Fairly rapid",
+  43: "Slow",
+  44: "Fairly rapid",
+  45: "Rapid",
+  46: "Fairly slow",
+  47: "Slow",
+  48: "Slow",
+  49: "Slow",
+  50: "Rapid",
+  51: "Fairly slow",
+  52: "Fairly rapid"
+};
+
+const TREMS_FREQ_RANK = {"Rare":4,"Relatively rare":3,"Relatively common":2,"Common":1};
+
+
+const TREMS_REPL_RANK = {"Rare event":5,"Very slow":4,"Slow":3,"Fairly rapid":2,"Rapid":1};
+
+function listSelectedTremsDetailed() {
+    const inputs = document.querySelectorAll(".microhabitat");
+    const out = [];
+    inputs.forEach(input => {
+      const count = parseInt(input.value || "0", 10);
+      if (!count || count <= 0) return;
+
+      // Get display name (includes leading number, e.g. "23. Lightning scar")
+      let name = "";
+      const label = input.closest("label");
+      if (label) {
+        const n = label.querySelector(".feature-name");
+        if (n) name = (n.textContent || "").trim();
+      }
+      if (!name) name = (input.getAttribute("aria-label") || "").trim() || "TreM";
+
+      // Parse TreM number from start of name
+      const m = name.match(/^\s*(\d+)\s*\./);
+      const no = m ? parseInt(m[1], 10) : null;
+
+      const freqText = (no && TREMS_FREQUENCY[no]) ? TREMS_FREQUENCY[no] : "";
+      const freqRank = freqText ? (TREMS_FREQ_RANK[freqText] || 0) : 0;
+
+      const replText = (no && TREMS_REPLACEMENT_RATE[no]) ? TREMS_REPLACEMENT_RATE[no] : "";
+      const replRank = replText ? (TREMS_REPL_RANK[replText] || 0) : 0;
+
+      out.push({
+        name,
+        count,
+        freqText,
+        freqRank,
+        replText,
+        replRank
+      });
+    });
+
+    // Sort: rarer first by frequency rank, then name
+    out.sort((a,b)=> (b.freqRank||0)-(a.freqRank||0) || (b.replRank||0)-(a.replRank||0) || a.name.localeCompare(b.name));return out;
+  }
+function summariseRavenFeatures() {
+    const inputs = document.querySelectorAll(".raven-feature");
+    let primaryCount = 0;
+    let secondaryCount = 0;
+    let primaryScore = 0;
+    let secondaryScore = 0;
+
+    inputs.forEach(input => {
+      if (!input.checked) return;
+      const type = (input.dataset.type || "").toLowerCase();
+      const weight = parseInt(input.dataset.weight || "1", 10);
+      if (type === "primary") {
+        primaryCount++;
+        primaryScore += weight;
+      } else {
+        secondaryCount++;
+        secondaryScore += weight;
+      }
+    });
+
+    return {
+      primaryCount,
+      secondaryCount,
+      primaryScore,
+      secondaryScore
+    };
+  }
+
+  function evaluateRaven2(age, ravenFeatures, fcin) {
+    let ageBand = "unknown";
+
+    if (fcin && fcin.ageBand && fcin.ageBand !== "unknown") {
+      ageBand = fcin.ageBand;
+    } else if (typeof age === "number" && !isNaN(age)) {
+      if (age < 80) {
+        ageBand = "young / early mature";
+      } else if (age < 150) {
+        ageBand = "mid-mature";
+      } else if (age < 250) {
+        ageBand = "late-mature / veteran-aged";
+      } else {
+        ageBand = "ancient-aged";
+      }
+    }
+
+    const { primaryCount, secondaryCount, primaryScore, secondaryScore } = ravenFeatures;
+    const totalFeat = primaryCount + secondaryCount;
+
+    let classification = "Outside veteran / notable (RAVEN2-style)";
+    const reasons = [];
+
+    if (ageBand !== "unknown") {
+      reasons.push(`RAVEN2 / White Method agedness context: ${ageBand}.`);
+    } else {
+      reasons.push("RAVEN2 / White Method agedness band unknown (age not estimated).");
+    }
+
+    if (totalFeat > 0) {
+      reasons.push(
+        `Recorded RAVEN2 veteran features: ${totalFeat} (primary ${primaryCount}, secondary ${secondaryCount}; approx scores primary ${primaryScore}, secondary ${secondaryScore}).`
+      );
+    } else {
+      reasons.push("No explicit RAVEN2 veteran features ticked in the White Method panel.");
+    }
+
+    if (ageBand === "ancient-aged" && primaryCount >= 2 && primaryScore >= 3) {
+      classification = "Ancient (candidate, RAVEN2-style)";
+    } else if ((ageBand === "ancient-aged" || ageBand === "late-mature / veteran-aged") && totalFeat >= 2) {
+      classification = "Veteran (candidate, RAVEN2-style)";
+    } else if (totalFeat >= 1 && (ageBand === "mid-mature" || ageBand === "late-mature / veteran-aged")) {
+      classification = "Notable (candidate, RAVEN2-style)";
+    }
+
+    reasons.unshift(
+      `According to a RAVEN2-style interpretation (White Method, using FCIN12-agedness and the recorded primary/secondary veteran features), this tree is ${classification}.`
+    );
+
+    return {
+      classification,
+      ageBand,
+      reasons,
+      primaryCount,
+      secondaryCount,
+      primaryScore,
+      secondaryScore
+    };
+  }
+
+
+
+
+  function classifyRAVEN(age, speciesKey, girthMeters, featureSummary, measHeight) {
+    const atfBand = getAtfBand(speciesKey, girthMeters);
+    const atfBandLabel = (atfBand === "na") ? "N/A" : atfBand;
+    const inAncientBand = (atfBand !== "na") && (atfBand === "ancient");
+    const inMatureOrAncient = atfBand === "mature" || atfBand === "ancient";
+
+    const {
+      totalCount,
+      primaryCount,
+      secondaryCount,
+      primaryScore,
+      secondaryScore,
+      rareCount,
+      rarityBuckets,
+      uniqueFeatureNames
+    } = featureSummary;
+
+    let classification = "Outside veteran / notable (by this simple scheme)";
+    const reasons = [];
+
+    if (girthMeters) {
+      reasons.push(`Girth at ${measHeight.toFixed(2)} m ≈ ${girthMeters.toFixed(2)} m; ATF band: ${atfBandLabel} (mature/ancient thresholds).`);
+    }
+    if (measHeight !== 1.3) {
+      reasons.push(`DBH/girth measured at ${measHeight.toFixed(2)} m, not 1.3 m – FCIN12 and ATF comparisons approximate.`);
+    }
+
+    if (totalCount > 0) {
+      reasons.push(
+        `TreMs checklist: ${totalCount} microhabitats ticked (${primaryCount} primary / ${secondaryCount} secondary); primary score ${primaryScore}, secondary score ${secondaryScore}.`
+      );
+      const rareTextParts = [];
+      if (rarityBuckets[3]) rareTextParts.push(`${rarityBuckets[3]} rare (3)`);
+      if (rarityBuckets[2]) rareTextParts.push(`${rarityBuckets[2]} uncommon (2)`);
+      if (rarityBuckets[1]) rareTextParts.push(`${rarityBuckets[1]} frequent (1)`);
+      if (rareTextParts.length) reasons.push("Rarity mix: " + rareTextParts.join(", ") + ".");
+    } else {
+      reasons.push("No microhabitats ticked in the TreMs checklist.");
+    }
+
+    if (uniqueFeatureNames.length) {
+      reasons.push("RAVEN feature themes: " + uniqueFeatureNames.join("; ") + ".");
+    }
+
+    const strongTreMs =
+      primaryScore >= RAVEN_THRESHOLDS.minPrimaryScoreForVeteran &&
+      (primaryScore + secondaryScore) >= RAVEN_THRESHOLDS.minTotalScoreForVeteran;
+
+    if (
+      inAncientBand &&
+      strongTreMs &&
+      totalCount >= RAVEN_THRESHOLDS.minFeaturesForAncient &&
+      rareCount >= RAVEN_THRESHOLDS.minRareCountForVeteran
+    ) {
+      classification = "Ancient (candidate)";
+    } else if (
+      inMatureOrAncient &&
+      strongTreMs &&
+      totalCount >= RAVEN_THRESHOLDS.minFeaturesForVeteran
+    ) {
+      classification = "Veteran (candidate)";
+    } else if (inMatureOrAncient || totalCount > 0) {
+      classification = "Notable (candidate)";
+    }
+
+    return {
+      classification,
+      reasons,
+      atfBand,
+      inAncientBand
+    };
+  }
+
+  function targetBadge(targetZone) {
+    switch (targetZone) {
+      case "none":
+        return { text: "Very low target use", cls: "pill-ok" };
+      case "occasional":
+        return { text: "Occasional target use", cls: "pill-info" };
+      case "regular":
+        return { text: "Regular target use", cls: "pill-warn" };
+      case "constant":
+        return { text: "Constant high target use", cls: "pill-alert" };
+      default:
+        return null;
+    }
+  }
+
+  const speciesSelect = document.getElementById("speciesSelect");
+  const speciesCustom = document.getElementById("speciesCustom");
+  const fcinContextSelect = document.getElementById("fcinContext");
+  const fcinProxyRow = document.getElementById("fcinProxyRow");
+  const fcinProxySelect = document.getElementById("fcinProxySpecies");
+
+  function populateFCIN12ProxyOptions() {
+    if (!fcinProxySelect) return;
+    const opts = Array.from(WHITE_FCIN12_SPECIES_KEYS).sort().map(k => {
+      const label = (SPECIES_CONFIG[k] && SPECIES_CONFIG[k].label) ? SPECIES_CONFIG[k].label : k.replace(/_/g, " ");
+      return { k, label };
+    }).sort((a,b)=>a.label.localeCompare(b.label));
+    fcinProxySelect.innerHTML = '<option value="">Select proxy species…</option>' + opts.map(o => `<option value="${o.k}">${o.label}</option>`).join("");
+  }
+
+  function updateFCIN12ProxyUI() {
+    const speciesKey = (speciesSelect && speciesSelect.value) ? speciesSelect.value : "";
+    const needsProxy = speciesKey && !WHITE_FCIN12_SPECIES_KEYS.has(speciesKey);
+    if (fcinProxyRow) fcinProxyRow.style.display = needsProxy ? "" : "none";
+    if (!needsProxy && fcinProxySelect) fcinProxySelect.value = "";
+  }
+
+  // Initialise FCIN12 proxy selector and UI
+  populateFCIN12ProxyOptions();
+  updateFCIN12ProxyUI();
+  if (speciesSelect) speciesSelect.addEventListener("change", updateFCIN12ProxyUI);
+  if (speciesCustom) speciesCustom.addEventListener("input", updateFCIN12ProxyUI);
+
+  const dbhInput = document.getElementById("dbh");
+  const dbhHeightInput = document.getElementById("dbhHeight");
+  const girthInput = document.getElementById("girth");
+  const heightInput = document.getElementById("height");
+  const growthCondSelect = null;
+  const siteContext = document.getElementById("siteContext");
+  const targetZone = document.getElementById("targetZone");
+  const notes = document.getElementById("notes");
+  const logoInput = document.getElementById("logoInput");
+  const appHeaderLogo = document.getElementById("appHeaderLogo");
+  const photoInput = document.getElementById("photoInput");
+  const photoListDiv = document.getElementById("photoList");
+
+  // Multi-stem (BS5837 equivalent stem) controls
+  const multiStemToggle = document.getElementById("multiStemToggle");
+  const multiStemPanel = document.getElementById("multiStemPanel");
+  const multiStemRows = document.getElementById("multiStemRows");
+  const addStemBtn = document.getElementById("addStemBtn");
+  const clearStemsBtn = document.getElementById("clearStemsBtn");
+  const eqDbhText = document.getElementById("eqDbhText");
+  let dbhManualCache = "";
+
+  function bs5837EquivalentDbh(diams) {
+    const ds = diams.map(d => Number(d)).filter(d => Number.isFinite(d) && d > 0);
+    const n = ds.length;
+    if (n === 0) return null;
+    if (n <= 5) {
+      const sumsq = ds.reduce((acc, d) => acc + d*d, 0);
+      return Math.round(Math.sqrt(sumsq));
+    }
+    const mean = ds.reduce((a,b)=>a+b,0) / n;
+    return Math.round(mean * Math.sqrt(n));
+  }
+
+  function buildStemRow(i, value=0) {
+    const row = document.createElement("div");
+    row.className = "stem-row";
+    row.innerHTML = `
+      <div class="stem-label">Stem ${i+1}</div>
+      <input type="number" class="stem-diam" min="0" step="1" value="${value}" placeholder="DBH (mm)" />
+      <button type="button" class="btn small ghost remove-stem">Remove</button>
+    `;
+    row.querySelector(".remove-stem").addEventListener("click", () => {
+      row.remove();
+      renumberStemLabels();
+      updateEquivalentDbh();
+    });
+    row.querySelector(".stem-diam").addEventListener("input", updateEquivalentDbh);
+    return row;
+  }
+
+  function renumberStemLabels() {
+    const rows = [...multiStemRows.querySelectorAll(".stem-row")];
+    rows.forEach((r, idx) => {
+      const lab = r.querySelector(".stem-label");
+      if (lab) lab.textContent = `S${idx+1}`;
+    });
+  }
+
+  function getStemDiams() {
+    return [...multiStemRows.querySelectorAll(".stem-diam")].map(inp => inp.value);
+  }
+
+  function updateEquivalentDbh() {
+    const eq = bs5837EquivalentDbh(getStemDiams());
+    eqDbhText.textContent = eq ? String(eq) : "—";
+    if (multiStemToggle && multiStemToggle.checked) {
+      dbhInput.value = eq ? String(eq) : "";
+      dbhInput.dispatchEvent(new Event("input"));
+    }
+  }
+
+  function ensureMinStemRows() {
+    if (!multiStemRows) return;
+    if (multiStemRows.querySelectorAll(".stem-row").length === 0) {
+      multiStemRows.appendChild(buildStemRow(0));
+      multiStemRows.appendChild(buildStemRow(1));
+    }
+    updateEquivalentDbh();
+  }
+
+  if (multiStemToggle) {
+    multiStemToggle.addEventListener("change", () => {
+      if (multiStemToggle.checked) {
+        dbhManualCache = dbhInput.value;
+        dbhInput.setAttribute("readonly", "readonly");
+        multiStemPanel.style.display = "";
+        ensureMinStemRows();
+      } else {
+        dbhInput.removeAttribute("readonly");
+        multiStemPanel.style.display = "none";
+        eqDbhText.textContent = "—";
+        dbhInput.value = dbhManualCache || "";
+        dbhInput.dispatchEvent(new Event("input"));
+      }
+    });
+  }
+
+  if (addStemBtn) {
+    addStemBtn.addEventListener("click", () => {
+      const count = multiStemRows.querySelectorAll(".stem-row").length;
+      if (count >= 10) {
+        alert("Up to 10 stems supported.");
+        return;
+      }
+      multiStemRows.appendChild(buildStemRow(count));
+      updateEquivalentDbh();
+    });
+  }
+
+  if (clearStemsBtn) {
+    clearStemsBtn.addEventListener("click", () => {
+      multiStemRows.innerHTML = "";
+      ensureMinStemRows();
+    });
+  }
+  const resultsDiv = document.getElementById("results");
+  const reportTextArea = document.getElementById("reportText");
+  const btnAssess = document.getElementById("btnAssess");
+  const btnClear = document.getElementById("btnClear");
+  const btnCopyReport = document.getElementById("btnCopyReport");
+  
+  const pdfReport = document.getElementById("pdfReport");
+  const pngSnapshot = document.getElementById("pngSnapshot");
+  const btnDownloadPng = document.getElementById("btnDownloadPng");
+
+  const surveyorNameInput = document.getElementById("surveyorName");
+  const surveyorNameSelect = document.getElementById("surveyorNameList");
+  const btnSaveSurveyor = document.getElementById("btnSaveSurveyor");
+
+  function safeVal(el){ return (el && typeof el.value === "string") ? el.value : ""; }
+  const HAS_SURVEYOR_UI = !!(surveyorNameInput && surveyorNameSelect && btnSaveSurveyor);
+
+  function loadSurveyorNames() {
+    try {
+      const raw = window.localStorage ? localStorage.getItem("avt_surveyor_names") : null;
+      const names = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(names)) return;
+      surveyorNameSelect.innerHTML = "";
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "Select saved name…";
+      surveyorNameSelect.appendChild(opt);
+      names.forEach(name => {
+        const o = document.createElement("option");
+        o.value = name;
+        o.textContent = name;
+        surveyorNameSelect.appendChild(o);
+      });
+    } catch (e) {
+      console.warn("Could not load surveyor names from storage", e);
+    }
+  }
+
+  function saveSurveyorName(name) {
+    if (!name) return;
+    try {
+      const raw = window.localStorage ? localStorage.getItem("avt_surveyor_names") : null;
+      let names = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(names)) names = [];
+      if (!names.includes(name)) {
+        names.push(name);
+        names.sort((a, b) => a.localeCompare(b));
+        localStorage.setItem("avt_surveyor_names", JSON.stringify(names));
+      }
+  if (HAS_SURVEYOR_UI) loadSurveyorNames();
+      surveyorNameSelect.value = name;
+    } catch (e) {
+      console.warn("Could not save surveyor name to storage", e);
+    }
+  }
+
+  if (surveyorNameSelect && surveyorNameInput) {
+  if (HAS_SURVEYOR_UI) loadSurveyorNames();
+    if (HAS_SURVEYOR_UI) surveyorNameSelect.addEventListener("change", () => {
+      const v = surveyorNameSelect.value;
+      if (v) surveyorNameInput.value = v;
+    });
+  }
+
+  if (btnSaveSurveyor && surveyorNameInput) {
+    if (HAS_SURVEYOR_UI) btnSaveSurveyor.addEventListener("click", () => {
+      const name = surveyorNameInput.value.trim();
+      if (!name) {
+        alert("Enter a surveyor name to save.");
+        return;
+      }
+      saveSurveyorName(name);
+    });
+  }
+
+  let currentPhotoNames = [];
+  let currentPhotoData = [];
+  let logoDataUrl = null;
+    if (appHeaderLogo) { appHeaderLogo.src = ""; appHeaderLogo.style.display = "none"; }
+  if (logoInput && appHeaderLogo) logoInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    logoDataUrl = null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      logoDataUrl = ev.target.result;
+      appHeaderLogo.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+  if (photoInput && photoListDiv) photoInput.addEventListener("change", (e) => {
+    const files = Array.from(e.target.files || []);
+    currentPhotoNames = files.map(f => f.name);
+    currentPhotoData = [];
+    if (photoListDiv) photoListDiv.innerHTML = "";
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        currentPhotoData.push({ name: file.name, dataUrl });
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        img.className = "photo-thumb";
+        img.alt = file.name;
+        photoListDiv.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  function buildReportText(params) {
+    const {
+      speciesLabel,
+      dbhMm,
+      measHeight,
+      girthVal,
+      heightVal,
+      growthCond,
+      estAge,
+      raven,
+      featureSummary,
+      ctxText,
+      notesText,
+      targetZoneVal
+    } = params;
+
+    const lines = [];
+    lines.push("Tree assessment summary");
+    lines.push("----------------------");
+    lines.push(`Species: ${speciesLabel}`);
+    if (dbhMm) lines.push(`DBH: ${dbhMm.toFixed(0)} mm @ ${measHeight.toFixed(2)} m`);
+    lines.push(`Girth: ${girthVal.toFixed(2)} m @ ${measHeight.toFixed(2)} m`);
+    if (heightVal) lines.push(`Approx. height: ${heightVal.toFixed(1)} m`);
+    lines.push(`FCIN12 growth context: ${growthCond}`);
+    if (raven.fcin && raven.fcin.ageBand) {
+      lines.push(`FCIN12-style agedness band: ${raven.fcin.ageBand}`);
+    }
+    if (raven.raven2 && raven.raven2.classification) {
+      lines.push(`RAVEN-style veteran feature interpretation informed by FCIN12 agedness: ${raven.raven2.classification}`);
+    }
+    lines.push(`ATF size band (girth only): ${raven.atfBand}`);
+    lines.push(`Overall category (TreMs / RAVEN / ATF blend): ${raven.classification}`);
+    if (estAge) {
+      if (raven.fcin && raven.fcin.ageLow && raven.fcin.ageHigh) {
+        lines.push(`Approximate age (FCIN12-style): central ~${estAge.totalAge} years; indicative range ~${raven.fcin.ageLow}–${raven.fcin.ageHigh} years.`);
+      } else {
+        lines.push(`Approximate age (FCIN12-style): ~${estAge.totalAge} years`);
+      }
+    }
+    lines.push("");
+
+    lines.push("TreMs / veteran features");
+    lines.push(`- Microhabitats (TreMs) recorded: ${featureSummary.totalCount}`);
+    if (featureSummary.rareCount > 0) lines.push(`- Rare TreMs (frequency: Rare): ${featureSummary.rareCount}`);
+    const tremList = listSelectedTremsDetailed();
+    if (tremList.length) {
+      lines.push("- Selected TreMs (count; frequency; replacement rate):");
+      tremList.forEach(t => {
+        const f = t.freqText ? `; ${t.freqText}` : "";
+        const rr = t.replText ? `; Replacement rate: ${t.replText}` : "";
+        lines.push(`  • ${t.name}: ${t.count}${f}${rr}`);
+      });
+    }
+    lines.push("");
+
+    if (targetZoneVal) lines.push(`Target use (fall zone): ${targetZoneVal}`);
+    if (ctxText) lines.push(`Context: ${ctxText}`);
+    if (notesText) lines.push(`Inspector notes: ${notesText}`);
+    lines.push("");
+
+    if (currentPhotoNames.length) {
+      lines.push("Photos (filenames on device):");
+      currentPhotoNames.forEach((name, idx) => {
+        lines.push(`  ${idx + 1}. ${name}`);
+      });
+      lines.push("");
+    }
+
+    lines.push("Reasoning (summary)");
+    raven.reasons.forEach((r, i) => {
+      lines.push(`- ${r}`);
+    });
+
+
+    lines.push("");
+    lines.push("Methodological references");
+    lines.push("- White, J.E.J. (1998). Estimating the Age of Large and Veteran Trees in Britain (FCIN12). Forestry Commission Information Note 12.");
+    lines.push("- Forbes-Laird, J. RAVEN / RAVEN 2 veteran tree assessment framework (practitioner guidance).");
+    lines.push("- Ancient Tree Forum (ATF). Species-specific girth thresholds for mature and ancient trees.");
+    lines.push("- WSL Tree-related Microhabitats (TreMs) classification system (2024 edition) – frequency and replacement rate table as supplied by user.");
+    lines.push("");
+    lines.push("Note: This tool provides an interpretive synthesis of the above frameworks and does not reproduce proprietary material in full.");
+
+    return lines.join("\n");
+  }
+
+  function buildPdfReport(params) {
+    const {
+      speciesLabel,
+      dbhMm,
+      measHeight,
+      girthVal,
+      heightVal,
+      growthCond,
+      estAge,
+      raven,
+      featureSummary,
+      ctxText,
+      notesText,
+      targetZoneVal
+    } = params;
+
+    const parts = [];
+    parts.push('<div id="pdfReport-header">');
+    if (logoDataUrl) {
+      parts.push(`<div><img id="pdfReport-logo" src="${logoDataUrl}" alt="Logo" /></div>`);
+    } else {
+      parts.push('<div></div>');
+    }
+    parts.push('<div style="text-align:right;font-size:11px;"><div><strong>Ancient &amp; Veteran Tree Tool</strong></div><div>Field assessment</div></div>');
+    parts.push('</div>');
+
+    parts.push('<h1>Tree assessment</h1>');
+
+    parts.push('<h2>Summary</h2>');
+    parts.push(`<p><strong>Species:</strong> ${speciesLabel}</p>`);
+    if (dbhMm) parts.push(`<p><strong>DBH:</strong> ${dbhMm.toFixed(0)} mm @ ${measHeight.toFixed(2)} m</p>`);
+    parts.push(`<p><strong>Girth:</strong> ${girthVal.toFixed(2)} m @ ${measHeight.toFixed(2)} m</p>`);
+    if (heightVal) parts.push(`<p><strong>Approx. height:</strong> ${heightVal.toFixed(1)} m</p>`);
+    parts.push(`<p><strong>FCIN12 context:</strong> ${growthCond}</p>`);
+    parts.push(`<p><strong>ATF size band:</strong> ${raven.atfBand}</p>`);
+    parts.push(`<p><strong>Overall category:</strong> ${raven.classification}</p>`);
+    if (estAge) parts.push(`<p><strong>Approx. age (FCIN12-style):</strong> ~${estAge.totalAge} years</p>`);
+
+    parts.push('<h2>TreMs / veteran features</h2>');
+    parts.push('<ul>');
+    parts.push(`<li>Microhabitats (TreMs) recorded: ${featureSummary.totalCount}</li>`);
+    parts.push(``);
+    if (featureSummary.rareCount > 0) parts.push(`<li>Rare TreMs (frequency: Rare): ${featureSummary.rareCount}</li>`);
+    if (featureSummary.uniqueFeatureNames.length) {
+      parts.push(`<li>Selected TreMs: ${featureSummary.uniqueFeatureNames.join("; ")}</li>`);
+    }
+    parts.push('</ul>');
+
+    parts.push('<h2>Context &amp; notes</h2>');
+    parts.push('<ul>');
+    if (targetZoneVal) parts.push(`<li>Target use (fall zone): ${targetZoneVal}</li>`);
+    if (ctxText) parts.push(`<li>Context: ${ctxText}</li>`);
+    if (notesText) parts.push(`<li>Inspector notes: ${notesText}</li>`);
+    parts.push('</ul>');
+
+    if (currentPhotoData.length) {
+      parts.push('<h2>Photos</h2>');
+      currentPhotoData.forEach((p, idx) => {
+        parts.push(`<div><div><strong>Photo ${idx + 1} – ${p.name}</strong></div><img class="photo" src="${p.dataUrl}" alt="${p.name}" /></div>`);
+      });
+    }
+
+    parts.push('<h2>Reasoning</h2>');
+    if (raven.reasons && raven.reasons.length) {
+      parts.push('<ul>');
+      raven.reasons.forEach(r => {
+        parts.push(`<li>${r}</li>`);
+      });
+      parts.push('</ul>');
+    }
+
+    pdfReport.innerHTML = parts.join('');
+  }
+
+  
+  function buildPngSnapshot(params) {
+    const { speciesLabel, dbhMm, measHeight, girthVal, heightVal, growthCond, estAge, raven, featureSummary, ctxText, notesText, targetZoneVal, multiStemEnabled, multiStemDiams, multiStemEqDbh } = params;
+
+    const targetMap = {
+      none: "Very low target use",
+      occasional: "Occasional use",
+      regular: "Regular use",
+      constant: "Constant high use"
+    };
+    const targetLabel = targetMap[targetZoneVal] || "";
+
+    let html = "";
+    html += '<div class="card" style="max-width:900px;margin:0 auto;background:#020617;color:#e5e7eb;border-radius:1rem;padding:0.9rem 1.1rem;">';
+    html += '<div class="result-block" style="margin-top:0;">';
+    html += '<h3 style="margin:0 0 0.35rem 0;font-size:0.95rem;">Field snapshot</h3>';
+
+    html += '<div class="statusbar" style="margin-bottom:0.4rem;">';
+    html += `<span class="pill pill-info">${speciesLabel}</span>`;
+    html += `<span class="pill pill-info">ATF: ${raven.atfBand}</span>`;
+    if (estAge) {
+      html += `<span class="pill pill-ok">~${estAge.totalAge} yrs (FCIN12)</span>`;
+    }
+    html += `<span class="pill pill-warn">${featureSummary.totalCount} TreMs</span>`;
+    if (featureSummary.rareCount > 0) {
+      html += `<span class="pill pill-ok">${featureSummary.rareCount} rare TreMs</span>`;
+    }
+    if (targetLabel) {
+      html += `<span class="pill pill-alert">${targetLabel}</span>`;
+    }
+    html += '</div>';
+
+    html += '<div class="result-grid" style="font-size:0.8rem;margin-top:0.3rem;">';
+    html += '<div><div class="result-label">DBH</div>';
+    html += `<div>${dbhMm ? dbhMm.toFixed(0) + " mm @ " + measHeight.toFixed(2) + " m" : "—"}</div></div>`;
+    if (multiStemEnabled && multiStemDiams && multiStemDiams.length) {
+      const stemList = multiStemDiams.map(d => Math.round(d)).join(", ");
+      const eqTxt = multiStemEqDbh ? ` → eq. ${Math.round(multiStemEqDbh)} mm` : "";
+      html += '<div><div class="result-label">Stems</div>';
+      html += `<div>${stemList} mm${eqTxt}</div></div>`;
+    }
+
+    html += '<div><div class="result-label">Girth</div>';
+    html += `<div>${girthVal.toFixed(2)} m @ ${measHeight.toFixed(2)} m</div></div>`;
+    html += '<div><div class="result-label">Height</div>';
+    html += `<div>${heightVal ? heightVal.toFixed(1) + " m" : "—"}</div></div>`;
+    html += '<div><div class="result-label">Overall category (blended)</div>';
+    html += `<div><strong>${raven.classification}</strong></div></div>`;
+    if (raven && raven.raven2 && raven.raven2.classification) {
+      html += '<div><div class="result-label">RAVEN2 outcome</div>';
+      html += `<div>${raven.raven2.classification}</div></div>`;
+    }
+    html += '</div>';
+
+
+    // --- TreMs mini-summary (for PNG) ---
+    try {
+      const sel = listSelectedTremsDetailed();
+      if (sel && sel.length) {
+        const freqCounts = {"Rare":0,"Relatively rare":0,"Relatively common":0,"Common":0};
+        const slowSet = new Set(["Very slow","Slow","Rare event"]);
+        let slowCount = 0;
+        sel.forEach(t => {
+          if (t.freqText && freqCounts.hasOwnProperty(t.freqText)) freqCounts[t.freqText] += t.count;
+          if (t.replText && slowSet.has(t.replText)) slowCount += t.count;
+        });
+
+        html += '<div class="divider" style="margin:0.6rem 0;"></div>';
+        html += '<div class="result-label">TreMs summary</div>';
+        html += '<div style="font-size:0.8rem;line-height:1.35;margin-top:0.15rem;">';
+        html += `<div><strong>Total TreMs recorded:</strong> ${sel.reduce((a,t)=>a+t.count,0)}</div>`;
+        html += `<div><strong>Frequency:</strong> Rare ${freqCounts["Rare"]} · Rel. rare ${freqCounts["Relatively rare"]} · Rel. common ${freqCounts["Relatively common"]} · Common ${freqCounts["Common"]}</div>`;
+        html += `<div><strong>Slow replacement (incl. rare event):</strong> ${slowCount}</div>`;
+        html += '</div>';
+      }
+    } catch (e) {
+      // ignore snapshot summary failures
+    }
+
+    if (ctxText || notesText || (surveyorNameInput && surveyorNameInput.value.trim())) {
+      html += '<div class="divider" style="margin:0.6rem 0;"></div>';
+      html += '<div class="result-label">Context & notes</div>';
+      html += '<ul style="margin:0.2rem 0 0 1.1rem;font-size:0.8rem;">';
+      if (surveyorNameInput && surveyorNameInput.value.trim()) html += `<li><strong>Surveyor:</strong> ${surveyorNameInput.value.trim()}</li>`;
+      if (ctxText) html += `<li><strong>Context:</strong> ${ctxText}</li>`;
+      if (notesText) html += `<li><strong>Inspector notes:</strong> ${notesText}</li>`;
+      html += '</ul>';
+    }
+
+    if (currentPhotoData && currentPhotoData.length) {
+      html += '<div class="divider" style="margin:0.6rem 0;"></div>';
+      html += '<div class="result-label">Photos</div>';
+      html += '<div style="display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.25rem;">';
+      currentPhotoData.forEach(p => {
+        html += `<div style="flex:0 0 auto;"><img src="${p.dataUrl}" alt="${p.name}" style="width:120px;height:120px;object-fit:cover;border-radius:0.5rem;border:1px solid rgba(148,163,184,0.7);" /></div>`;
+      });
+      html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    pngSnapshot.innerHTML = html;
+  }
+
+btnAssess.addEventListener("click", () => {
+    const speciesKey = speciesSelect.value || "";
+    const speciesCfg = SPECIES_CONFIG[speciesKey] || SPECIES_CONFIG.default;
+    const speciesLabel = speciesCustom.value.trim() || speciesCfg.label;
+
+    const fcinContext = document.getElementById("fcinContext").value;
+    const fcinProxySpecies = document.getElementById("fcinProxySpecies").value;
+
+    if (!fcinContext) {
+      alert("Please select an FCIN12 growth context (White 1998).");
+      return;
+    }
+    const needsProxy = !speciesKey || !WHITE_FCIN12_SPECIES_KEYS.has(speciesKey);
+    if (needsProxy && !fcinProxySpecies) {
+      alert("This species is not included in the FCIN12 dataset used by AVATA. Please select an FCIN12 proxy species.");
+      return;
+    }
+
+    const dbhMm = parseFloat(dbhInput.value);
+    const measHeight = parseFloat(dbhHeightInput.value) || 1.3;
+
+    let girthVal = parseFloat(girthInput.value);
+    if (dbhMm && dbhMm > 0) {
+      const dbhMeters = dbhMm / 1000.0;
+      const computedGirth = Math.PI * dbhMeters;
+      girthVal = computedGirth;
+      girthInput.value = computedGirth.toFixed(2);
+    }
+
+    // Derive DBH in cm for FCIN12 engine (needed even if user inputs girth only)
+    let dbhCm = null;
+    if (dbhMm && dbhMm > 0) {
+      dbhCm = dbhMm / 10.0;
+    } else if (girthVal && girthVal > 0) {
+      const diamMeters = girthVal / Math.PI;
+      dbhCm = diamMeters * 100.0;
+    }
+
+
+    const heightVal = parseFloat(heightInput.value) || null;
+    const growthCond = (fcinContextSelect && fcinContextSelect.value) ? fcinContextSelect.value : "";
+
+    if (!girthVal || girthVal <= 0) {
+      alert("Please enter either a positive DBH (mm) or girth (m).");
+      return;
+    }
+
+    const featureSummary = summariseFeatures();
+    const estAge = estimateAgeFromFCIN12(dbhCm, speciesKey, fcinContext, fcinProxySpecies);
+    const fcin = evaluateFCIN12(estAge, speciesKey, girthVal, fcinContext);
+    const ravenFeatures = summariseRavenFeatures();
+    const raven2 = evaluateRaven2(estAge, ravenFeatures, fcin);
+    const raven = classifyRAVEN(estAge, speciesKey, girthVal, featureSummary, measHeight);
+    const targetInfo = targetBadge(targetZone.value);
+
+    // attach FCIN12 and RAVEN2 diagnostic info and prepend their reasoning
+    if (fcin) {
+      raven.fcin = fcin;
+    }
+    if (raven2) {
+      raven.raven2 = raven2;
+      raven.raven2Features = ravenFeatures;
+    }
+
+    raven.reasons = [];
+    if (fcin && fcin.reasons && fcin.reasons.length) {
+      raven.reasons = raven.reasons.concat(fcin.reasons);
+    }
+    if (raven2 && raven2.reasons && raven2.reasons.length) {
+      raven.reasons = raven.reasons.concat(raven2.reasons);
+    }
+
+    const lines = [];
+
+    lines.push('<div class="result-block">');
+    lines.push('<h3>Headline</h3>');
+    lines.push('<div class="statusbar">');
+
+    lines.push(`<span class="pill pill-info">${speciesLabel}</span>`);
+    lines.push(`<span class="pill pill-info">ATF band: ${raven.atfBand}</span>`);
+    if (estAge) {
+      lines.push(`<span class="pill pill-ok">Age ~${estAge.totalAge} years (FCIN12)</span>`);
+    } else {
+      lines.push(`<span class="pill pill-info">Age not estimated</span>`);
+    }
+    lines.push(`<span class="pill pill-warn">${featureSummary.totalCount} TreMs</span>`);
+    if (featureSummary.rareCount > 0) {
+      lines.push(`<span class="pill pill-ok">${featureSummary.rareCount} rare TreMs</span>`);
+    }
+    const combinedIsAncient = raven.classification.startsWith("Ancient");
+    if (raven.inAncientBand !== combinedIsAncient) {
+      lines.push(`<span class="pill pill-alert">ATF vs overall differ</span>`);
+    }
+    if (targetInfo) {
+      lines.push(`<span class="pill ${targetInfo.cls}">${targetInfo.text}</span>`);
+    }
+    lines.push('</div>');
+
+    lines.push('<div class="result-grid">');
+    lines.push('<div><div class="result-label">DBH</div>');
+    lines.push(`<div>${dbhMm ? dbhMm.toFixed(0) + " mm @ " + measHeight.toFixed(2) + " m" : "—"}</div></div>`);
+    lines.push('<div><div class="result-label">Girth</div>');
+    lines.push(`<div>${girthVal.toFixed(2)} m @ ${measHeight.toFixed(2)} m</div></div>`);
+    lines.push('<div><div class="result-label">Height</div>');
+    lines.push(`<div>${heightVal ? heightVal.toFixed(1) + " m" : "—"}</div></div>`);
+    lines.push('<div><div class="result-label">Growth</div>');
+    lines.push(`<div>${(FCIN12_CONTEXT_LABELS[growthCond] || growthCond || "Not selected")} </div></div>`);
+    lines.push('<div><div class="result-label">Overall category (blended)</div>');
+    lines.push(`<div><strong>${raven.classification}</strong></div></div>`);
+    if (raven.raven2 && raven.raven2.classification) {
+      lines.push('<div><div class="result-label">RAVEN2 outcome</div>');
+      lines.push(`<div>${raven.raven2.classification}</div></div>`);
+    }
+    lines.push('</div>');
+
+    if (raven.reasons && raven.reasons.length) {
+      lines.push('<div class="divider"></div>');
+      lines.push('<div class="result-label">Reasoning (FCIN12 / RAVEN2 / ATF / TreMs)</div>');
+      lines.push('<ul style="margin:0.3rem 0 0 1.1rem;font-size:0.8rem;">');
+      raven.reasons.forEach(r => lines.push(`<li>${r}</li>`));
+      lines.push('</ul>');
+    }
+
+        const ctxText = safeVal(siteContext).trim();
+        const notesText = safeVal(notes).trim();
+    if (ctxText || notesText) {
+      lines.push('<div class="divider"></div>');
+      lines.push('<div class="result-label">Site &amp; notes</div>');
+      lines.push('<ul style="margin:0.25rem 0 0 1.1rem;font-size:0.8rem;">');
+      if (ctxText) lines.push(`<li><strong>Context:</strong> ${ctxText}</li>`);
+      if (notesText) lines.push(`<li><strong>Inspector notes:</strong> ${notesText}</li>`);
+      lines.push('</ul>');
+    }
+
+    lines.push('</div>');
+    resultsDiv.innerHTML = lines.join("");
+
+
+
+    const multiStemEnabled = !!(multiStemToggle && multiStemToggle.checked);
+    const multiStemDiams = multiStemEnabled ? getStemDiams().map(v => Number(v)).filter(v => Number.isFinite(v) && v > 0) : [];
+    const multiStemEqDbh = multiStemEnabled ? bs5837EquivalentDbh(multiStemDiams) : null;
+    const report = buildReportText({
+      speciesLabel,
+      dbhMm,
+      measHeight,
+      girthVal,
+      heightVal,
+      growthCond,
+      estAge,
+      raven,
+      featureSummary,
+      ctxText,
+      notesText,
+      targetZoneVal: targetZone.value,
+      multiStemEnabled,
+      multiStemDiams,
+      multiStemEqDbh
+    });
+    reportTextArea.value = report;
+
+    // build hidden PDF report
+    buildPdfReport({
+      speciesLabel,
+      dbhMm,
+      measHeight,
+      girthVal,
+      heightVal,
+      growthCond,
+      estAge,
+      raven,
+      featureSummary,
+      ctxText,
+      notesText,
+      targetZoneVal: targetZone.value,
+      multiStemEnabled,
+      multiStemDiams,
+      multiStemEqDbh
+    });
+  
+    // build hidden PNG snapshot card
+
+    buildPngSnapshot({
+      speciesLabel,
+      dbhMm,
+      measHeight,
+      girthVal,
+      heightVal,
+      growthCond,
+      estAge,
+      raven,
+      featureSummary,
+      ctxText,
+      notesText,
+      targetZoneVal: targetZone.value,
+      multiStemEnabled,
+      multiStemDiams,
+      multiStemEqDbh
+    });
+});
+
+  btnClear.addEventListener("click", () => {
+    speciesSelect.value = "";
+    speciesCustom.value = "";
+    dbhInput.value = "";
+    dbhHeightInput.value = "1.3";
+    girthInput.value = "";
+    heightInput.value = "";
+    if (siteContext) siteContext.value = "";
+    targetZone.value = "none";
+    notes.value = "";
+    if (surveyorNameInput) surveyorNameInput.value = "";
+    if (logoInput) logoInput.value = "";
+    logoDataUrl = null;
+    if (appHeaderLogo) { appHeaderLogo.src = ""; appHeaderLogo.style.display = "none"; }
+    if (photoInput) photoInput.value = "";
+    currentPhotoNames = [];
+    currentPhotoData = [];
+    if (photoListDiv) photoListDiv.innerHTML = "";
+    document.querySelectorAll(".microhabitat").forEach(inp => { if ("checked" in inp) inp.checked = false; inp.value = "0"; });
+    document.querySelectorAll(".raven-feature").forEach(inp => inp.checked = false);
+    document.querySelectorAll(".fcin-flag").forEach(inp => inp.checked = false);
+    resultsDiv.innerHTML = "";
+    reportTextArea.value = "";
+    pdfReport.innerHTML = "";
+  });
+
+  btnCopyReport.addEventListener("click", () => {
+    const txt = reportTextArea.value;
+    if (!txt) {
+      alert("Run an assessment first so there is some report text to copy.");
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => {
+        alert("Report text copied to clipboard.");
+      }).catch(() => {
+        reportTextArea.removeAttribute("readonly");
+        reportTextArea.focus();
+        reportTextArea.select();
+        try {
+          const ok = document.execCommand("copy");
+          if (ok) {
+            alert("Report text copied to clipboard.");
+          } else {
+            alert("Could not access clipboard. Text selected – please copy manually.");
+          }
+        } catch (e) {
+          alert("Could not access clipboard. Text selected – please copy manually.");
+        }
+        reportTextArea.setAttribute("readonly", "readonly");
+      });
+    } else {
+      reportTextArea.removeAttribute("readonly");
+      reportTextArea.focus();
+      reportTextArea.select();
+      try {
+        const ok = document.execCommand("copy");
+        if (ok) {
+          alert("Report text copied to clipboard.");
+        } else {
+          alert("Clipboard not available. Text selected – please copy manually.");
+        }
+      } catch (e) {
+        alert("Clipboard not available. Text selected – please copy manually.");
+      }
+      reportTextArea.setAttribute("readonly", "readonly");
+    }
+  });
+
+  btnDownloadPng.addEventListener("click", async () => {
+    if (!pngSnapshot.innerHTML.trim()) {
+      alert("Run an assessment first so there is something to export.");
+      return;
+    }
+    if (!window.html2canvas) {
+      alert("Image library not loaded. Please check your connection and try again.");
+      return;
+    }
+    try {
+      const canvas = await html2canvas(pngSnapshot, { scale: 2 });
+      const dataUrl = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, "0");
+      const defaultName =
+        `tree-snapshot_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_` +
+        `${pad(now.getHours())}${pad(now.getMinutes())}.png`;
+      link.href = dataUrl;
+      link.download = defaultName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error(e);
+      alert("Something went wrong creating the image snapshot.");
+    }
+  });
+
+
+
+
+
+  
+  // TreMs grouped controls
+  (function(){
+    const btnEx = document.getElementById('btnTremsExpand');
+    const btnCo = document.getElementById('btnTremsCollapse');
+    const groups = () => Array.from(document.querySelectorAll('.trem-group'));
+    if (btnEx) btnEx.addEventListener('click', () => groups().forEach(d => d.open = true));
+    if (btnCo) btnCo.addEventListener('click', () => groups().forEach(d => d.open = false));
+  })();
+</script>
+
+<div id="buildStamp" style="position:fixed;bottom:6px;right:10px;font-size:12px;opacity:0.6;z-index:9999;">Build v39</div>
+
+
+<div style="margin-top:40px;font-size:13px;opacity:0.85;line-height:1.5;">
+  <b>Methods &amp; Sources</b><br>
+  White, J. (1998). <i>Estimating the Age of Large and Veteran Trees in Britain.</i> Forestry Commission Information Note FCIN12.<br>
+  Forbes-Laird, J. <i>RAVEN (Recognition of Ancient and Veteran Elements in Nature) veteran tree assessment approach</i> – practitioner guidance used in veteran tree assessment.<br>
+  Lonsdale, D. (2013). <i>Ancient and Other Veteran Trees: Further Guidance on Management.</i><br>
+  WSL (2024). <i>Tree Microhabitats (TreMs) Catalogue.</i><br><br>
+  <b>Method note</b><br>
+  FCIN12 is used to estimate indicative tree age from girth and growth context. Where a species is listed in FCIN12 Table 1a but the selected growth context is not tabulated, AVATA derives a context-adjusted estimate anchored to the nearest FCIN12 entry using context multipliers derived from FCIN12 calibration species. These derived values are explicitly flagged in the reasoning output. Species not listed in FCIN12 Table 1a require a proxy species.
+</div>
+
+
+<div style="margin-top:20px;font-size:12px;opacity:0.8;">
+  Outputs are indicative diagnostic estimates derived from published arboricultural guidance. Results should be interpreted and applied only by a competent arboricultural professional.
+</div>
+
+</body>
+</html>
