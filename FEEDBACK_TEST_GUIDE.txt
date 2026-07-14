@@ -1,0 +1,22 @@
+VERA v0.6.17 feedback test build
+
+1. Open index_embedded_single_file.html.
+2. Complete and run a VERA assessment.
+3. Select “Report an odd result”.
+4. Add a comment and optional expected result.
+5. Leave Local test mode selected and press “Send feedback”.
+   This saves a test submission locally and sends no email.
+6. Open Delivery setup and download the local test outbox to inspect it.
+7. To test an email draft, enter a recipient and choose “Prepare email”.
+   VERA downloads the JSON/PNG and opens an addressed draft; attach the downloaded files.
+8. On a phone, “Share with files” can pass the JSON and PNG to the device share sheet.
+9. A fully automatic production submission requires a secure HTTPS endpoint. Enter one in the test setup, untick Local test mode and press Send feedback.
+
+Privacy defaults
+- Anonymous structured diagnostics: included.
+- Generated assessment PNG: included.
+- Assessor notes: excluded.
+- Coordinates: excluded.
+- Tree photographs and saved-tree records: never included by the feedback workflow.
+
+No ATF, FCIN12, OpenBARD, VAI, VTEM, heritage or cultural calculation functions were changed.

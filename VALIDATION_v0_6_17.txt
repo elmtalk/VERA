@@ -1,0 +1,34 @@
+VERA v0.6.17 feedback test build validation
+
+JavaScript syntax
+- index.html: PASS (all inline scripts checked with Node.js)
+- index_embedded_single_file.html: PASS (all inline scripts checked with Node.js)
+
+Browser feedback workflow smoke test
+- Assessment runs: PASS
+- Feedback dialog opens: PASS
+- Anonymous diagnostic preview generated: PASS
+- Assessor notes and coordinates excluded by default: PASS
+- JSON and PNG files prepared: PASS
+- Local test outbox saves submission: PASS
+- Assessor notes and coordinates included only after explicit opt-in: PASS
+
+Assessment-engine source comparison against VERA v0.6.16
+The following functions are byte-for-byte unchanged:
+- estimateAgeFromFCIN12
+- evaluateOpenBARD
+- summariseVAI
+- summariseVTEMPreliminary
+- veraAncientGate
+- summariseValueEngine
+- summariseHeritage
+- summariseCultural
+- veraPathwayConclusion
+- buildVeraEvidenceChains
+
+Delivery note
+- Local test mode is enabled by default and sends no email.
+- Share with files passes the JSON and generated PNG to a supported device share sheet.
+- Prepare email downloads the files and opens a pre-addressed email draft.
+- Fully automatic delivery is available when a secure HTTPS feedback endpoint is configured.
+- The existing VERA PNG export uses html2canvas 1.4.1 from its existing CDN reference, so PNG creation requires that library to load.
