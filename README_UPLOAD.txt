@@ -1,4 +1,4 @@
-# VERA v0.6.18 — GitHub Pages PWA pack
+# VERA v0.6.19 — GitHub Pages PWA pack
 
 Upload **all files in this folder** to the root of the `elmtalk/VERA` GitHub repository.
 

@@ -1,0 +1,17 @@
+VERA v0.6.19
+
+User-facing terminology
+- Uses the full title Open British Arboricultural Record Dataset (OpenBARD).
+- Uses the full title Veteran Architecture Index (VAI).
+- Uses the full title Veteran Tree Evidence Matrix (VTEM).
+- Expanded titles are used in assessment screens, evidence chains, PNG summaries, report text and feedback diagnostics.
+
+Evidence-chain presentation correction
+- An ATF mature result remains in Ancient status and no longer appears as an incomplete evidence chain.
+- OpenBARD Large, Very large and Exceptional candidate results remain in Size evidence and no longer appear as incomplete evidence chains.
+- Emerging or progressing Veteran Architecture Index results remain condition observations and no longer appear as incomplete evidence chains.
+- Genuine review and supported chains remain visible.
+
+Unchanged
+- ATF, FCIN12, OpenBARD lookup, Veteran Architecture Index and Veteran Tree Evidence Matrix calculation rules.
+- Heritage/cultural inputs, notes handling, feedback workflow and botanical graphics.
